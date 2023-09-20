@@ -16,35 +16,22 @@ _______________________________________________________________________
 import sqlite3
 
 from auth import create_account, login_account
-from database import setupSQLite
+from database import setupSQLite, get_existing_db_object
 from home import display_home_page
 from util import clear_terminal, print_logo
+from social import promote_marketing_program
 
 # Setup SQLite connection
-connection = setupSQLite("incollege_database.db")
+db = get_existing_db_object()
+connection = db.get_connection()
 
-
-def promote_marketing_program(cursor):
-    """prior to logging into the system, the user can enter first and last name to check if they're part of the program"""
-    print("Welcome to InCollege, as part of our marketing program, we'd like to check if you're part of our system before you log in or sign up.")
-    first = input("Enter your first name: ")
-    last = input("Enter your last name: ")
-    cursor.execute("SELECT * FROM college_students WHERE firstname = ? AND lastname = ?",
-                   (first, last))
-    is_a_member = cursor.fetchone()
-    if is_a_member:
-        print("You are a part of the InCollege system.\n")
-    else:
-        print("You are not a part of the InCollege system yet.\n")
-
-
-def driver(connection):
-    cursor = connection.cursor()
+def driver():
+    cursor = db.get_cursor()
     # Setup initial variables
     main = 1
     logged_in = False
-
-    promote_marketing_program(cursor)
+    print_logo()
+    promote_marketing_program()
     # Main Functionality
     while main == 1:
         print_logo()
@@ -64,7 +51,7 @@ def driver(connection):
             logged_in = login_account(cursor, username, password)
 
             if logged_in:
-                display_home_page(username)
+                display_home_page(username, cursor)
 
                 # Logout after leaving home page (when the loop breaks)
                 logged_in = False
@@ -99,4 +86,4 @@ def driver(connection):
 
 
 if __name__ == '__main__':
-    driver(connection)
+    driver()
