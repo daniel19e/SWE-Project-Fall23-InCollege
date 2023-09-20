@@ -32,6 +32,9 @@ class DatabaseObject:
     self.cursor.execute("SELECT * FROM college_students WHERE username = ? AND pass = ?",
                  (username.lower(), password))
     return self.cursor.fetchone()
+  
+  def close_connection(self):
+    self.connection.close()
 
     
   

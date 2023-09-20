@@ -23,7 +23,7 @@ def display_skills_page():
     clear_terminal()
     return False
 
-def display_home_page(username, cursor):
+def display_home_page(username):
   home = 1
   while home == 1:
     print(f"Welcome back, {username}!")
@@ -35,7 +35,6 @@ def display_home_page(username, cursor):
     print("E. Logout \n")
 
     selection = input("Make a selection: ")
-    print("debug",selection.upper())
     # Search for a job
     if (selection.upper() == 'A'):
       clear_terminal()
@@ -60,10 +59,12 @@ def display_home_page(username, cursor):
 
     # connect with other students
     elif (selection.upper() == 'D'):
+      clear_terminal()
       print("Who do you want to connect with?")
       first = input("Enter their first name: ")
       last = input("Enter their last name: ")
-      connect_with_student(cursor, first, last)
+      connect_with_student(first, last)
+      input("Enter any input to go back: ")
       
     # Exit
     elif (selection.upper() == 'E'):

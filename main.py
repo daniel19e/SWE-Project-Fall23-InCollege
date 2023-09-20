@@ -12,21 +12,16 @@
 *                  Shahaddin Gafarov
 _______________________________________________________________________
 """
-
-import sqlite3
-
 from auth import create_account, login_account
-from database import setupSQLite, get_existing_db_object
+from database import get_existing_db_object
 from home import display_home_page
 from util import clear_terminal, print_logo
 from social import promote_marketing_program
 
 # Setup SQLite connection
 db = get_existing_db_object()
-connection = db.get_connection()
 
 def driver():
-    cursor = db.get_cursor()
     # Setup initial variables
     main = 1
     logged_in = False
@@ -48,11 +43,10 @@ def driver():
 
             clear_terminal()
 
-            logged_in = login_account(cursor, username, password)
+            logged_in = login_account(username, password)
 
             if logged_in:
-                display_home_page(username, cursor)
-
+                display_home_page(username)
                 # Logout after leaving home page (when the loop breaks)
                 logged_in = False
 
@@ -65,7 +59,7 @@ def driver():
 
             clear_terminal()
 
-            create_account(connection, cursor, username,
+            create_account(username,
                            password, firstname, lastname)
 
         # Exit
@@ -73,7 +67,7 @@ def driver():
             clear_terminal()
 
             print("Shutting down program and database...")
-            connection.close()
+            db.close_connection()
             main = 0
 
             print("Exited Successfully!")
