@@ -15,7 +15,7 @@ def create_account(connection, cursor, username, password, firstname, lastname):
       try:
         cursor.execute(
             "INSERT INTO college_students (username, firstname, lastname, pass) VALUES (? , ?, ?, ?)",
-            (username, firstname, lastname, password))
+            (username.lower(), firstname.lower(), lastname.lower(), password))
         connection.commit()
         print("You have successfully created an account!\n")
       except sqlite3.IntegrityError:
@@ -35,7 +35,7 @@ def create_account(connection, cursor, username, password, firstname, lastname):
 
 def login_account(cursor, username, password):
   cursor.execute("SELECT * FROM college_students WHERE username = ? AND pass = ?",
-                 (username, password))
+                 (username.lower(), password))
 
   login_success = cursor.fetchone()
 
