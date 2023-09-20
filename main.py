@@ -43,7 +43,7 @@ def driver():
 
             clear_terminal()
 
-            logged_in = login_account(username, password)
+            logged_in = login_account(db, username, password)
 
             if logged_in:
                 display_home_page(username)
@@ -59,7 +59,7 @@ def driver():
 
             clear_terminal()
 
-            create_account(username,
+            create_account(db, username,
                            password, firstname, lastname)
 
         # Exit

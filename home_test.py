@@ -10,7 +10,7 @@ def mock_input(mocked_inputs):
 
 # Test case for searching for a job
 def test_search_for_job(capsys):
-    with patch('builtins.input', side_effect=['A', 'X', 'D']):
+    with patch('builtins.input', side_effect=['A', 'X', 'E']):
         display_home_page("TestUser")
         out, _ = capsys.readouterr()
         assert "Oops! Under construction 🛠️\n" in out
@@ -18,7 +18,7 @@ def test_search_for_job(capsys):
 
 # Test case for finding someone they know
 def test_find_someone_they_know(capsys):
-    with patch('builtins.input', side_effect=['B', 'X', 'D']):
+    with patch('builtins.input', side_effect=['B', 'X', 'E']):
         display_home_page("TestUser")
         out, _ = capsys.readouterr()
         assert "Oops! Under construction 🛠️\n" in out
@@ -31,7 +31,7 @@ def test_learn_skills(capsys):
         effects.append('C')
         effects.append(str(skill_option))
         effects.append('X')
-    effects.append('D')
+    effects.append('E')
     with patch('builtins.input', side_effect=effects):
         display_home_page("TestUser")
         out, _ = capsys.readouterr()
@@ -41,7 +41,7 @@ def test_learn_skills(capsys):
 
 # Test case for returning to the previous level
 def test_return_to_previous_level(capsys):
-    with patch('builtins.input', side_effect=['D']):
+    with patch('builtins.input', side_effect=['E']):
         display_home_page("TestUser")
         out, _ = capsys.readouterr()
         assert "Welcome back, TestUser!" in out
@@ -49,7 +49,7 @@ def test_return_to_previous_level(capsys):
 
 # Test case for invalid input
 def test_invalid_input(capsys):
-    with patch('builtins.input', side_effect=['X', 'D']):
+    with patch('builtins.input', side_effect=['X', 'E']):
         display_home_page("TestUser")
         out, _ = capsys.readouterr()
         assert "Error: Invalid choice. Please enter a valid character.\n" in out

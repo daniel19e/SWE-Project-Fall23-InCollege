@@ -1,15 +1,12 @@
 import re
 import sqlite3
-from database import get_existing_db_object
-
-db = get_existing_db_object()
 
 def validate_password(password):
   regex = r'^(?=.*[A-Z])(?=.*\d)(?=.*[)(}{><_+:@#$%&!?^*]).{8,12}$'
   return bool(re.match(regex, password))
 
 
-def create_account(username, password, firstname, lastname):
+def create_account(db, username, password, firstname, lastname):
   if validate_password(password):
     number_accounts = db.get_number_of_accounts()
     if (number_accounts < 5):
@@ -31,8 +28,9 @@ def create_account(username, password, firstname, lastname):
           "- Contain at least one special character.\n")
 
 
-def login_account(username, password):
+def login_account(db, username, password):
   login_success = db.is_student_registered(username, password)
+  print("danieldebug", login_success)
   try:
     if (login_success):
       print("You have sucessfully logged in!\n")
