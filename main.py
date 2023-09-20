@@ -56,12 +56,14 @@ def driver(connection):
 
     # Register
     elif start_choice == '2':
+      firstname = input("Enter your first name: ")
+      lastname = input("Enter your last name: ")
       username = input("Enter new username: ")
       password = input("Enter new password: ")
 
       clear_terminal()
 
-      create_account(connection, cursor, username, password)
+      create_account(connection, cursor, username, password, firstname, lastname)
 
     # Exit
     elif start_choice == '3':
