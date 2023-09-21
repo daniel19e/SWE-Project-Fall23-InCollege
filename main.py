@@ -12,73 +12,72 @@
 *                  Shahaddin Gafarov
 _______________________________________________________________________
 """
-
-import sqlite3
-
 from auth import create_account, login_account
-from database import setupSQLite
+from database import get_existing_db_object
 from home import display_home_page
 from util import clear_terminal, print_logo
+from social import promote_marketing_program
 
 # Setup SQLite connection
-connection = setupSQLite("incollege_database.db")
+db = get_existing_db_object()
 
-
-def driver(connection):
-  cursor = connection.cursor()
-  # Setup initial variables
-  main = 1
-  logged_in = False
-
-  # Main Functionality
-  while main == 1:
+def driver():
+    # Setup initial variables
+    main = 1
+    logged_in = False
     print_logo()
-    print("1. Log in with an existing account")
-    print("2. Create a new account")
-    print("3. Exit\n")
+    promote_marketing_program()
+    # Main Functionality
+    while main == 1:
+        print_logo()
+        print("1. Log in with an existing account")
+        print("2. Create a new account")
+        print("3. Exit\n")
 
-    start_choice = input("Select an option: ")
+        start_choice = input("Select an option: ")
 
-    # Login
-    if start_choice == '1':
-      username = input("Enter username: ")
-      password = input("Enter password: ")
+        # Login
+        if start_choice == '1':
+            username = input("Enter username: ")
+            password = input("Enter password: ")
 
-      clear_terminal()
+            clear_terminal()
 
-      logged_in = login_account(cursor, username, password)
+            logged_in = login_account(db, username, password)
 
-      if logged_in:
-        display_home_page(username)
+            if logged_in:
+                display_home_page(username)
+                # Logout after leaving home page (when the loop breaks)
+                logged_in = False
 
-        # Logout after leaving home page (when the loop breaks)
-        logged_in = False
+        # Register
+        elif start_choice == '2':
+            firstname = input("Enter your first name: ")
+            lastname = input("Enter your last name: ")
+            username = input("Enter new username: ")
+            password = input("Enter new password: ")
 
-    # Register
-    elif start_choice == '2':
-      username = input("Enter new username: ")
-      password = input("Enter new password: ")
+            clear_terminal()
 
-      clear_terminal()
+            create_account(db, username,
+                           password, firstname, lastname)
 
-      create_account(connection, cursor, username, password)
+        # Exit
+        elif start_choice == '3':
+            clear_terminal()
 
-    # Exit
-    elif start_choice == '3':
-      clear_terminal()
+            print("Shutting down program and database...")
+            db.close_connection()
+            main = 0
 
-      print("Shutting down program and database...")
-      connection.close()
-      main = 0
+            print("Exited Successfully!")
+            break
 
-      print("Exited Successfully!")
-      break
-
-    # Handle Invalid Input
-    else:
-      clear_terminal()
-      print("Error: Invalid command, please select a valid option.")
+        # Handle Invalid Input
+        else:
+            clear_terminal()
+            print("Error: Invalid command, please select a valid option.")
 
 
 if __name__ == '__main__':
-  driver(connection)
+    driver()

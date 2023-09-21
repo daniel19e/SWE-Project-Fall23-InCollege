@@ -1,22 +1,17 @@
 import re
 import sqlite3
 
-
 def validate_password(password):
   regex = r'^(?=.*[A-Z])(?=.*\d)(?=.*[)(}{><_+:@#$%&!?^*]).{8,12}$'
   return bool(re.match(regex, password))
 
 
-def create_account(connection, cursor, username, password):
+def create_account(db, username, password, firstname, lastname):
   if validate_password(password):
-    cursor.execute("SELECT COUNT(*) FROM college_students")
-    number_accounts = cursor.fetchone()[0]
+    number_accounts = db.get_number_of_accounts()
     if (number_accounts < 5):
       try:
-        cursor.execute(
-            "INSERT INTO college_students (name, pass) VALUES (? , ?)",
-            (username, password))
-        connection.commit()
+        db.add_new_student(username, firstname, lastname, password)
         print("You have successfully created an account!\n")
       except sqlite3.IntegrityError:
         print("Error: User already exists. Please try another username.\n")
@@ -33,12 +28,9 @@ def create_account(connection, cursor, username, password):
           "- Contain at least one special character.\n")
 
 
-def login_account(cursor, username, password):
-  cursor.execute("SELECT * FROM college_students WHERE name = ? AND pass = ?",
-                 (username, password))
-
-  login_success = cursor.fetchone()
-
+def login_account(db, username, password):
+  login_success = db.is_student_registered(username, password)
+  print("danieldebug", login_success)
   try:
     if (login_success):
       print("You have sucessfully logged in!\n")
