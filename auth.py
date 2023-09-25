@@ -7,6 +7,9 @@ def validate_password(password):
 
 
 def create_account(db, username, password, firstname, lastname):
+  if not firstname or not lastname:
+        raise ValueError("First name and Last name are required according to new InCollege rule ")
+
   if validate_password(password):
     number_accounts = db.get_number_of_accounts()
     if (number_accounts < 5):
