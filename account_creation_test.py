@@ -8,7 +8,7 @@ from auth import create_account
 def mock_db():
     return Mock()
 
-#checking for legitimacy of firstname, lastname requirement
+#checking for legitimacy of firstname, lastname requirement (NEW TEST CASE)
 def test_create_account_requires_firstname_lastname(mock_db):
     mock_db.get_number_of_accounts.return_value = 1
     valid_password = "Karimli11!!"
@@ -23,7 +23,7 @@ def test_create_account_requires_firstname_lastname(mock_db):
         else:
             pytest.fail("Expected ValueError but none was raised")
 
-#double checking with a predefined valid data
+#double checking with a predefined valid data (NEW TEST CASE)
 def test_create_account_with_valid_data(mock_db):
     mock_db.get_number_of_accounts.return_value = 1
 
