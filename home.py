@@ -1,5 +1,6 @@
-from util import clear_terminal, print_404
+from util import clear_terminal, inspect_input
 from social import connect_with_student
+from ascii_art import aa_error404
 
 def display_skills_page():
   print("Learn a new skill:\n")
@@ -7,13 +8,17 @@ def display_skills_page():
   print("2. Learn to fly")
   print("3. Travel back in time")
   print("4. Meaning of life")
-  print("5. Actually understand how Python works\n")
-  choice = input("Select a skill to learn (1-5) or " \
-                  "enter any other digit to go back: ")
+  print("5. Actually understand how Python works")
+  print("\n0. Go back\n")
+  choice = input("Select a skill to learn (1-5): ")
+  if choice == '0':
+    clear_terminal()
+    return True
+  
   input_array = ['1', '2', '3', '4', '5']
   if choice in input_array:
     clear_terminal()
-    print_404()
+    print(aa_error404)
     print("Oops! Under construction 🛠️\n")
     input("Enter any input to go back: ")
     clear_terminal()
@@ -24,21 +29,20 @@ def display_skills_page():
     return False
 
 def display_home_page(username):
-  home = 1
-  while home == 1:
+  while True:
     print(f"Welcome back, {username}!")
     print("What would you like to do?\n")
     print("A. Search for a job")
     print("B. Find someone I know")
     print("C. Learn a new skill")
     print("D. Connect with other students")
-    print("E. Logout \n")
+    print("\n0. Logout and go back\n")
 
     selection = input("Make a selection: ")
     # Search for a job
     if (selection.upper() == 'A'):
       clear_terminal()
-      print_404()
+      print(aa_error404)
       print("Oops! Under construction 🛠️\n")
       input("Enter any input to go back: ")
       clear_terminal()
@@ -46,7 +50,7 @@ def display_home_page(username):
     # Find someone they know
     elif (selection.upper() == 'B'):
       clear_terminal()
-      print_404()
+      print(aa_error404)
       print("Oops! Under construction 🛠️\n")
       input("Enter any input to go back: ")
       clear_terminal()
@@ -63,13 +67,14 @@ def display_home_page(username):
       print("Who do you want to connect with?")
       first = input("Enter their first name: ")
       last = input("Enter their last name: ")
+
       connect_with_student(first, last)
       input("Enter any input to go back: ")
+      clear_terminal()
       
     # Exit
-    elif (selection.upper() == 'E'):
+    elif (selection.upper() == '0'):
       clear_terminal()
-      home = 0
       break
     
     # Handle Invalid Input

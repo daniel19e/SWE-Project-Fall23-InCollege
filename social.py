@@ -1,5 +1,6 @@
 
 from database import get_existing_db_object
+from util import clear_terminal
 
 db = get_existing_db_object()
 def promote_marketing_program():
@@ -8,6 +9,9 @@ def promote_marketing_program():
     first = input("Enter your first name: ")
     last = input("Enter your last name: ")
     is_a_member = db.search_first_and_last(first, last)
+    
+    clear_terminal()
+    
     if is_a_member:
         print("You are a part of the InCollege system.\n")
     else:
@@ -18,8 +22,8 @@ def send_connection_request(firstname, lastname):
 
 def connect_with_student(firstname, lastname):
     if db.search_first_and_last(firstname, lastname):
-        print(f"\nYou found {firstname.capitalize()} {lastname.capitalize()}.\n")
+        print(f"You found {firstname.capitalize()} {lastname.capitalize()}.\n")
         send_connection_request(firstname, lastname)
     else:
-        print(f"{firstname.capitalize()} {lastname.capitalize()} is not a member of InCollege.")
+        print(f"{firstname.capitalize()} {lastname.capitalize()} is not a member of InCollege.\n")
      
