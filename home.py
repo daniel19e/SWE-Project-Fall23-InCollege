@@ -1,6 +1,9 @@
-from util import clear_terminal, inspect_input
+from util import clear_terminal
 from social import connect_with_student
+from database import get_existing_db_object
 from ascii_art import aa_error404
+
+db = get_existing_db_object()
 
 def display_skills_page():
   print("Learn a new skill:\n")
@@ -29,13 +32,15 @@ def display_skills_page():
     return False
 
 def display_home_page(username):
+  user_info = db.get_user_info(username)
+  print(f"Welcome back, {username}!")
   while True:
-    print(f"Welcome back, {username}!")
     print("What would you like to do?\n")
     print("A. Search for a job")
-    print("B. Find someone I know")
-    print("C. Learn a new skill")
-    print("D. Connect with other students")
+    print("B. Post a job")
+    print("C. Find someone I know")
+    print("D. Learn a new skill")
+    print("E. Connect with other students")
     print("\n0. Logout and go back\n")
 
     selection = input("Make a selection: ")
@@ -46,9 +51,34 @@ def display_home_page(username):
       print("Oops! Under construction 🛠️\n")
       input("Enter any input to go back: ")
       clear_terminal()
+
+    # Post a job
+    if (selection.upper() == 'B'):
+      clear_terminal()
+      
+      number_jobs = db.get_number_of_jobs()
+      if (number_jobs < 5):
+        print("Please fill in this job's information")
+        title = input("Enter a title: ")
+        description = input("Enter a description: ")
+        employer = input("Enter an employer: ")
+        location = input("Enter a location: ")
+        salary = input("Enter a salary: ")
+
+        if (user_info):
+          firstname = user_info[2]
+          lastname = user_info[3]
+
+          db.add_new_job_post(firstname, lastname, title, description, employer, location, salary)
+
+          clear_terminal()
+          print("Job posted Sucessfully!\n")
+      else:
+        clear_terminal()
+        print("Error: Maximum job posts limit reached.\n")
     
     # Find someone they know
-    elif (selection.upper() == 'B'):
+    elif (selection.upper() == 'C'):
       clear_terminal()
       print(aa_error404)
       print("Oops! Under construction 🛠️\n")
@@ -56,13 +86,13 @@ def display_home_page(username):
       clear_terminal()
     
     # Learn a new skill
-    elif (selection.upper() == 'C'):
+    elif (selection.upper() == 'D'):
       clear_terminal()
       if not display_skills_page():
         continue
 
     # connect with other students
-    elif (selection.upper() == 'D'):
+    elif (selection.upper() == 'E'):
       clear_terminal()
       print("Who do you want to connect with?")
       first = input("Enter their first name: ")

@@ -5,6 +5,7 @@ class DatabaseObject:
     self.connection = sqlite3.connect(databaseName)
     self.cursor = self.connection.cursor()
     self.cursor.execute('''CREATE TABLE IF NOT EXISTS college_students (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, firstname TEXT, lastname TEXT, pass TEXT)''')
+    self.cursor.execute('''CREATE TABLE IF NOT EXISTS job_posts (id INTEGER PRIMARY KEY AUTOINCREMENT, firstname TEXT, lastname TEXT, title TEXT, description TEXT, employer TEXT, location TEXT, salary TEXT)''')
     self.connection.commit()
 
   def get_connection(self):
@@ -18,14 +19,29 @@ class DatabaseObject:
                     (firstname, lastname))
     return self.cursor.fetchone()
   
+  def get_user_info(self, username):
+    self.cursor.execute("SELECT * FROM college_students WHERE username = ?",
+                    (username,))
+    return self.cursor.fetchone()
+  
   def get_number_of_accounts(self):
     self.cursor.execute("SELECT COUNT(*) FROM college_students")
+    return self.cursor.fetchone()[0]
+  
+  def get_number_of_jobs(self):
+    self.cursor.execute("SELECT COUNT(*) FROM job_posts")
     return self.cursor.fetchone()[0]
   
   def add_new_student(self, username, firstname, lastname, password):
     self.cursor.execute(
       "INSERT INTO college_students (username, firstname, lastname, pass) VALUES (? , ?, ?, ?)",
       (username.lower(), firstname.lower(), lastname.lower(), password))
+    self.connection.commit()
+
+  def add_new_job_post(self, firstname, lastname, title, description, employer, location, salary):
+    self.cursor.execute(
+      "INSERT INTO job_posts (firstname, lastname, title, description, employer, location, salary) VALUES (? , ?, ?, ?, ? , ?, ?)",
+      (firstname.lower(), lastname.lower(), title.lower(), description.lower(), employer.lower(), location.lower(), salary.lower()))
     self.connection.commit()
     
   def is_student_registered(self, username, password):
