@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import Mock
 from unittest.mock import patch
 import social
+from social import connect_with_student
 
 @pytest.fixture
 def mock_db():
@@ -27,3 +28,24 @@ def test_promote_marketing_program_non_member(mock_db, mock_input, capsys):
         social.promote_marketing_program()
     captured = capsys.readouterr()
     assert "You are not a part of the InCollege system yet.\n" in captured.out
+    
+
+@patch('social.db.search_first_and_last')
+@patch('social.send_connection_request')
+#Connection with student test (new test case)
+def test_connect_with_student_found(mock_send_connection_request, mock_search_first_and_last):
+    mock_search_first_and_last.return_value = True
+
+    result = connect_with_student('John', 'Doe')
+
+    assert result == True
+
+    mock_send_connection_request.assert_called_once_with('John', 'Doe')
+#Connection with student test(if the student is not found) ()
+@patch('social.db.search_first_and_last')
+def test_connect_with_student_not_found(mock_search_first_and_last):
+    mock_search_first_and_last.return_value = False
+    
+    result = connect_with_student('Jane', 'Doe')
+    
+    assert result == False

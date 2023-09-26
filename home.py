@@ -30,6 +30,28 @@ def display_skills_page():
     print("Skill not available.")
     clear_terminal()
     return False
+  
+def try_posting_job(db, user_info):
+      number_jobs = db.get_number_of_jobs()
+      if (number_jobs < 5):
+        print("Please fill in this job's information")
+        title = input("Enter a title: ")
+        description = input("Enter a description: ")
+        employer = input("Enter an employer: ")
+        location = input("Enter a location: ")
+        salary = input("Enter a salary: ")
+
+        if (user_info):
+          firstname = user_info[2]
+          lastname = user_info[3]
+
+          db.add_new_job_post(firstname, lastname, title, description, employer, location, salary)
+
+          clear_terminal()
+          print("Job posted Sucessfully!\n")
+      else:
+        clear_terminal()
+        print("Error: Maximum job posts limit reached.\n")
 
 def display_home_page(username):
   user_info = db.get_user_info(username)
@@ -55,27 +77,7 @@ def display_home_page(username):
     # Post a job
     if (selection.upper() == 'B'):
       clear_terminal()
-      
-      number_jobs = db.get_number_of_jobs()
-      if (number_jobs < 5):
-        print("Please fill in this job's information")
-        title = input("Enter a title: ")
-        description = input("Enter a description: ")
-        employer = input("Enter an employer: ")
-        location = input("Enter a location: ")
-        salary = input("Enter a salary: ")
-
-        if (user_info):
-          firstname = user_info[2]
-          lastname = user_info[3]
-
-          db.add_new_job_post(firstname, lastname, title, description, employer, location, salary)
-
-          clear_terminal()
-          print("Job posted Sucessfully!\n")
-      else:
-        clear_terminal()
-        print("Error: Maximum job posts limit reached.\n")
+      try_posting_job(db, user_info)
     
     # Find someone they know
     elif (selection.upper() == 'C'):
