@@ -21,10 +21,10 @@ from success_story import display_story
 from video import play_video
 from ascii_art import aa_logo
 
-# Setup SQLite connection
-db = get_existing_db_object()
 
 def driver():
+    # Setup SQLite connection
+    db = get_existing_db_object()
     # Setup initial variables
     logged_in = False
 
