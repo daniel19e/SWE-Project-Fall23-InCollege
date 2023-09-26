@@ -24,6 +24,7 @@ def connect_with_student(firstname, lastname):
     if db.search_first_and_last(firstname, lastname):
         print(f"You found {firstname.capitalize()} {lastname.capitalize()}.\n")
         send_connection_request(firstname, lastname)
+        return True
     else:
-        print(f"{firstname.capitalize()} {lastname.capitalize()} is not a member of InCollege.\n")
-     
+        print(f"{firstname.capitalize()} {lastname.capitalize()} is not a member of InCollege.")
+        return False
