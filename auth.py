@@ -1,5 +1,10 @@
 import re
 import sqlite3
+from database import get_existing_db_object
+
+db = get_existing_db_object()
+
+current_username = "";
 
 def validate_password(password):
   regex = r'^(?=.*[A-Z])(?=.*\d)(?=.*[)(}{><_+:@#$%&!?^*]).{8,12}$'
@@ -36,6 +41,8 @@ def login_account(db, username, password):
   print("danieldebug", login_success)
   try:
     if (login_success):
+      global current_username
+      current_username = login_success[1]
       print("You have sucessfully logged in!\n")
     else:
       raise Exception("Invalid Credentials")
@@ -43,3 +50,11 @@ def login_account(db, username, password):
     print("Error: Incorrect username/password. Please try again. \n")
 
   return login_success
+
+def logout_account():
+  global current_username
+  current_username = "";
+
+def get_current_username():
+  global current_username
+  return current_username;

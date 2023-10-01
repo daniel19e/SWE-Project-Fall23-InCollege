@@ -2,6 +2,8 @@ from util import clear_terminal
 from social import connect_with_student
 from database import get_existing_db_object
 from ascii_art import aa_error404
+from pages import *
+from auth import logout_account
 
 db = get_existing_db_object()
 
@@ -63,6 +65,8 @@ def display_home_page(username):
     print("C. Find someone I know")
     print("D. Learn a new skill")
     print("E. Connect with other students")
+    print("F. Useful Links")
+    print("G. Important Links")
     print("\n0. Logout and go back\n")
 
     selection = input("Make a selection: ")
@@ -103,10 +107,17 @@ def display_home_page(username):
       connect_with_student(first, last)
       input("Enter any input to go back: ")
       clear_terminal()
+
+    elif (selection.upper() == 'F'):
+      show_useful_links()
+
+    elif (selection.upper() == 'G'):
+      show_incollege_important_links()
       
     # Exit
     elif (selection.upper() == '0'):
       clear_terminal()
+      logout_account()
       break
     
     # Handle Invalid Input
