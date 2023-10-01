@@ -196,41 +196,49 @@ def show_languages():
 def show_copyright_notice():
     clear_terminal()
     print("Copyright Notice")
+    print("© 2023 InCollege, Inc. All rights reserved. The content, graphics, and other elements of this website are protected under copyright law and may not be reproduced, distributed, transmitted, displayed, published, or broadcast without the prior written permission of InCollege, Inc. or in the case of third party materials, the owner of that content. Unauthorized use or infringement may result in legal action.")
     input("Enter any input to go back: ")
 
 def show_about():
     clear_terminal()
-    print("Copyright Notice")
+    print("About")
+    print("In College: Welcome to In College, the world's largest college student network with many users in many countries and territories worldwide.")
     input("Enter any input to go back: ")
 
 def show_accessibility():
     clear_terminal()
     print("Accessibility")
+    print("InCollege, Inc. is committed to ensuring that our website is accessible to everyone, regardless of ability or technology. We are actively working to enhance the accessibility and usability of our content, and in doing so, adhere to many of the available standards and guidelines. Should you experience any difficulty in accessing any part of this website, please don't hesitate to contact us.")
     input("Enter any input to go back: ")
 
 def show_user_agreement():
     clear_terminal()
     print("User Agreement")
+    print("By using the InCollege website and its associated services, you agree to comply with all applicable laws and our terms of service. You are responsible for maintaining the confidentiality of your account and for any activities that occur under your account. InCollege, Inc. reserves the right to modify or terminate services, content, or user accounts at its discretion.")
     input("Enter any input to go back: ")
 
 def show_privacy_policy():
     clear_terminal()
     print("Privacy Policy")
+    print("InCollege, Inc. values and respects your privacy. We collect and use your personal information solely for the purpose of enhancing your experience and to provide specific services you request. Your data will never be shared or sold to third parties without your explicit consent. Cookies and other tracking technologies may be used to improve the user experience. By using our website, you consent to our privacy practices.")
     input("Enter any input to go back: ")
 
 def show_cookie_policy():
     clear_terminal()
     print("Cookie Policy")
+    print("InCollege, Inc. utilizes cookies to enhance your browsing experience and deliver personalized content. By visiting our website, you agree to the use of cookies as described in this policy. You can adjust your browser settings to refuse cookies or alert you when they are being sent, although this may affect the functionality and performance of our site.")
     input("Enter any input to go back: ")
 
 def show_copyright_policy():
     clear_terminal()
     print("Copyright Policy")
+    print("All content, designs, graphics, and other materials published by InCollege, Inc. on our website are protected by copyright law. Unauthorized use, reproduction, distribution, or modification of this copyrighted material without the express written permission of InCollege, Inc. is strictly prohibited. If you believe any content on our site infringes upon your copyright, please contact us immediately.")
     input("Enter any input to go back: ")
 
 def show_brand_policy():
     clear_terminal()
     print("Brand Policy")
+    print("Copyright © 2023 InCollege, Inc.; all content is protected by law, and unauthorized use or reproduction without our express permission is prohibited.")
     input("Enter any input to go back: ")
 
 
