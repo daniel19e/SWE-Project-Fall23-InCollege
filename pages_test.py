@@ -1,0 +1,132 @@
+import pytest
+from unittest.mock import patch, Mock
+import pages  
+
+
+
+###################################################################################
+#Test the General Links
+def test_help_center_page(capsys):
+    with patch('builtins.input', return_value='2'):
+        pages.help_center_page()
+    captured = capsys.readouterr()
+    assert "We're here to help" in captured.out
+
+def test_about_page(capsys):
+    with patch('builtins.input', return_value='3'):
+        pages.about_page()
+    captured = capsys.readouterr()
+    assert "In College: Welcome to In College," in captured.out
+    
+def test_press_page(capsys):
+    with patch('builtins.input', return_value='4'):
+        pages.press_page()
+    captured = capsys.readouterr()
+    assert "In College Pressroom: Stay on top of the latest news," in captured.out
+
+def test_blog_page(capsys):
+    with patch('builtins.input', return_value='5'):
+        pages.blog_page()
+    captured = capsys.readouterr()
+    assert "Oops! Under construction 🛠️" in captured.out
+
+def test_careers_page(capsys):
+    with patch('builtins.input', return_value='6'):
+        pages.careers_page()
+    captured = capsys.readouterr()
+    assert "Oops! Under construction 🛠️" in captured.out
+    
+def test_developers_page(capsys):
+    with patch('builtins.input', return_value='7'):
+        pages.developers_page()
+    captured = capsys.readouterr()
+    assert "Oops! Under construction 🛠️" in captured.out
+
+def test_sign_up_page(capsys):
+    with patch('builtins.input', side_effect=['John', 'Doe', 'johndoe', 'password123']):
+        pages.sign_up_page()
+    captured = capsys.readouterr()
+    assert "Sign Up (Enter X to cancel)" in captured.out
+###################################################################################
+
+
+
+###################################################################################
+#Test cases Important Links
+def test_show_copyright_notice(capsys):
+    with patch('builtins.input', return_value='1. A Copyright Notice'):
+        pages.show_copyright_notice()
+    captured = capsys.readouterr()
+    assert "© 2023 InCollege, Inc. All rights reserved." in captured.out
+
+#This test case was an exception, it gives an error unless full sentence is used
+#"About\nIn College: Welcome to In College, the world's largest college student network with many users in many countries and territories worldwide.\n"
+def test_show_about(capsys):
+    with patch('builtins.input', return_value='2. About'):
+        pages.show_about()
+    captured = capsys.readouterr()
+    assert "In College: Welcome to In College, the world's largest college student network with many users in many countries and territories worldwide." in captured.out
+
+def test_show_accessibility(capsys):
+    with patch('builtins.input', return_value='3. Accessibility'):
+        pages.show_accessibility()
+    captured = capsys.readouterr()
+    assert "InCollege, Inc. is committed to ensuring that our website is accessible to everyone," in captured.out
+
+def test_show_user_agreement(capsys):
+    with patch('builtins.input', return_value='4. User Agreement'):
+        pages.show_user_agreement()
+    captured = capsys.readouterr()
+    assert "By using the InCollege website and its associated services, you agree to comply with all applicable laws and our terms of service." in captured.out
+
+def test_show_privacy_policy(capsys):
+    with patch('builtins.input', return_value='5. Privacy Policy'):
+        pages.show_privacy_policy()
+    captured = capsys.readouterr()
+    assert "InCollege, Inc. values and respects your privacy." in captured.out
+
+def test_show_cookie_policy(capsys):
+    with patch('builtins.input', return_value='6. Cookie Policy'):
+        pages.show_cookie_policy()
+    captured = capsys.readouterr()
+    assert "InCollege, Inc. utilizes cookies to enhance your browsing experience and deliver personalized content." in captured.out
+
+def test_show_copyright_policy(capsys):
+    with patch('builtins.input', return_value='7. Copyright Policy'):
+        pages.show_copyright_policy()
+    captured = capsys.readouterr()
+    assert "All content, designs, graphics, and other materials published by InCollege, Inc. on our website are protected by copyright law." in captured.out
+
+def test_show_brand_policy(capsys):
+    with patch('builtins.input', return_value='8. Brand Policy'):
+        pages.show_brand_policy()
+    captured = capsys.readouterr()
+    assert "Copyright © 2023 InCollege, Inc.; all content is protected by law," in captured.out
+###################################################################################
+
+
+
+###################################################################################
+#Testing Guest Control Options
+user_info = [None, None, None, None, None, None, True, True, True]
+
+@pytest.mark.parametrize("option, sql_update", [
+    ('1', "UPDATE college_students SET receive_emails = ? WHERE username = ?"),
+    ('2', "UPDATE college_students SET receive_sms = ? WHERE username = ?"),
+    ('3', "UPDATE college_students SET targeted_ads = ? WHERE username = ?"),
+])
+def test_show_guest_controls(option, sql_update):
+    with patch('pages.input', side_effect=[option, '0']) as mock_input, \
+         patch('pages.db.get_user_info', return_value=user_info) as mock_user_info, \
+         patch('pages.db.get_cursor') as mock_cursor, \
+         patch('pages.db.get_connection') as mock_connection, \
+         patch('pages.get_current_username', return_value='test_user') as mock_username:
+
+        mock_cursor.return_value.execute = Mock()
+        
+        pages.show_guest_controls()
+        
+        mock_cursor.return_value.execute.assert_called_with(sql_update,(False, 'test_user'))
+        mock_connection.return_value.commit.assert_called_once()
+###################################################################################
+
