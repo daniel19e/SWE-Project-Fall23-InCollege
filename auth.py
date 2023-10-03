@@ -38,7 +38,6 @@ def create_account(db, username, password, firstname, lastname):
 
 def login_account(db, username, password):
   login_success = db.is_student_registered(username, password)
-  print("danieldebug", login_success)
   try:
     if (login_success):
       global current_username
