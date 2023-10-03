@@ -96,10 +96,16 @@ def sign_up_page():
 
 def general_link():
     clear_terminal()
-    general_link_names = ["Sign Up", "Help Center", "About",
-                          "Press", "Blog", "Careers", "Developers"]
-    general_links_functs = [sign_up_page, help_center_page,
-                            about_page, press_page, blog_page, careers_page, developers_page]
+    user = db.get_user_info(get_current_username())
+    if (user):
+        general_link_names = ["Help Center", "About",
+                            "Press", "Blog", "Careers", "Developers"]
+        general_links_functs = [help_center_page, about_page, press_page, blog_page, careers_page, developers_page]
+    else:
+        general_link_names = ["Sign Up", "Help Center", "About",
+                            "Press", "Blog", "Careers", "Developers"]
+        general_links_functs = [sign_up_page, help_center_page,
+                                about_page, press_page, blog_page, careers_page, developers_page]
     display_link_page("General links", general_link_names,
                       general_links_functs)
 
@@ -132,7 +138,7 @@ def show_page_with_message(title, message):
 
 def show_guest_controls():
     clear_terminal()
-    user = db.get_user_info(get_current_username());
+    user = db.get_user_info(get_current_username())
     if user:
         print("Guest Controls \n")
         print("-------------------------------------")

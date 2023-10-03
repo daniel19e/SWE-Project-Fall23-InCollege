@@ -8,14 +8,14 @@ def promote_marketing_program():
     print("Welcome to InCollege, as part of our marketing program, we'd like to check if you're part of our system before you log in or sign up.")
     first = input("Enter your first name: ")
     last = input("Enter your last name: ")
-    is_a_member = db.search_first_and_last(first, last)
+    is_a_member = db.search_first_and_last(first.lower(), last.lower())
     
     clear_terminal()
     
     if is_a_member:
-        print("You are a part of the InCollege system.\n")
+        print("You are a part of the InCollege system.")
     else:
-        print("You are not a part of the InCollege system yet.\n")
+        print("You are not a part of the InCollege system yet.")
         
 def send_connection_request(firstname, lastname):
     pass

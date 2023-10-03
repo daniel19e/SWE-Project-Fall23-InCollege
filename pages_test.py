@@ -43,7 +43,7 @@ def test_developers_page(capsys):
     assert "Oops! Under construction 🛠️" in captured.out
 
 def test_sign_up_page(capsys):
-    with patch('builtins.input', side_effect=['John', 'Doe', 'johndoe', 'password123']):
+    with patch('builtins.input', return_value='x'):
         pages.sign_up_page()
     captured = capsys.readouterr()
     assert "Sign Up (Enter X to cancel)" in captured.out
@@ -102,6 +102,18 @@ def test_show_brand_policy(capsys):
         pages.show_brand_policy()
     captured = capsys.readouterr()
     assert "Copyright © 2023 InCollege, Inc.; all content is protected by law," in captured.out
+
+def test_unauth_guest_controls(capsys):
+    with patch('builtins.input', return_value='9. Guest Controls'):
+        pages.show_guest_controls()
+    captured = capsys.readouterr()
+    assert "This is only available to logged in users.\n" in captured.out
+
+def test_unauth_languages(capsys):
+    with patch('builtins.input', return_value='10. Languages'):
+        pages.show_languages()
+    captured = capsys.readouterr()
+    assert "Once you have created an account, you will be able to choose which one you want to use." in captured.out
 ###################################################################################
 
 
@@ -130,3 +142,30 @@ def test_show_guest_controls(option, sql_update):
         mock_connection.return_value.commit.assert_called_once()
 ###################################################################################
 
+
+###################################################################################
+#Test Useful Links
+def test_general_link(capsys):
+    with patch('builtins.input', return_value='0'):
+        pages.general_link()
+    captured = capsys.readouterr()
+    assert "General links" in captured.out
+
+def test_browse_incollege_link(capsys):
+    with patch('builtins.input', return_value='2'):
+        pages.browse_incollege_link()
+    captured = capsys.readouterr()
+    assert "Oops! Under construction 🛠️" in captured.out
+
+def test_business_solutions_link(capsys):
+    with patch('builtins.input', return_value='3'):
+        pages.business_solutions_link()
+    captured = capsys.readouterr()
+    assert "Oops! Under construction 🛠️" in captured.out
+    
+def test_directories_link(capsys):
+    with patch('builtins.input', return_value='4'):
+        pages.directories_link()
+    captured = capsys.readouterr()
+    assert "Oops! Under construction 🛠️" in captured.out
+###################################################################################
