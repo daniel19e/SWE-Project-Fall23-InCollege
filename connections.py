@@ -26,6 +26,7 @@ def find_someone_i_know(username):
         clear_terminal()
         return
     else:
+        clear_terminal()
         print("Invalid choice.")
         return
 
