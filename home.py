@@ -1,10 +1,9 @@
 from util import clear_terminal
-from social import connect_with_student
+from social import connect_with_student, find_someone_i_know, show_my_network
 from database import get_existing_db_object
 from ascii_art import aa_error404
 from pages import *
 from auth import logout_account
-from connections import show_my_network, find_someone_i_know
 
 db = get_existing_db_object()
 
