@@ -4,6 +4,7 @@ from database import get_existing_db_object
 from ascii_art import aa_error404
 from pages import *
 from auth import logout_account
+from connections import show_my_network, find_someone_i_know
 
 db = get_existing_db_object()
 
@@ -67,6 +68,7 @@ def display_home_page(username):
     print("E. Connect with other students")
     print("F. Useful Links")
     print("G. Important Links")
+    print("H. Show My Network")
     print("\n0. Logout and go back\n")
 
     selection = input("Make a selection: ")
@@ -85,11 +87,8 @@ def display_home_page(username):
     
     # Find someone they know
     elif (selection.upper() == 'C'):
-      clear_terminal()
-      print(aa_error404)
-      print("Oops! Under construction 🛠️\n")
-      input("Enter any input to go back: ")
-      clear_terminal()
+        clear_terminal()
+        find_someone_i_know(username)
     
     # Learn a new skill
     elif (selection.upper() == 'D'):
@@ -113,6 +112,9 @@ def display_home_page(username):
 
     elif (selection.upper() == 'G'):
       show_incollege_important_links()
+
+    elif selection.upper() == 'H':
+      show_my_network(username)
       
     # Exit
     elif (selection.upper() == '0'):

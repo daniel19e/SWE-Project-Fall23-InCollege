@@ -11,7 +11,7 @@ def validate_password(password):
   return bool(re.match(regex, password))
 
 
-def create_account(db, username, password, firstname, lastname):
+def create_account(db, username, password, firstname, lastname, major, university):
   if not firstname or not lastname:
       raise ValueError("First name and Last name are required according to new InCollege rule")
 
@@ -19,7 +19,7 @@ def create_account(db, username, password, firstname, lastname):
     number_accounts = db.get_number_of_accounts()
     if (number_accounts < 5):
       try:
-        db.add_new_student(username, firstname, lastname, password)
+        db.add_new_student(username, firstname, lastname, password, major, university)
         print("You have successfully created an account!\n")
       except sqlite3.IntegrityError:
         print("Error: User already exists. Please try another username.\n")

@@ -86,11 +86,20 @@ def sign_up_page():
     if inspect_input(password):
         clear_terminal()
         return False
+    
+    major = input("Enter your major: ")
+    if inspect_input(major):
+        clear_terminal()
+        return False
+    
+    university = input("Enter your university: ")
+    if inspect_input(university):
+        clear_terminal()
+        return False
 
     clear_terminal()
 
-    create_account(db, username,
-                   password, firstname, lastname)
+    create_account(db, username, password, firstname, lastname, major, university)
     return True
 
 

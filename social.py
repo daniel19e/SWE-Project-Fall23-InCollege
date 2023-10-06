@@ -28,3 +28,6 @@ def connect_with_student(firstname, lastname):
     else:
         print(f"{firstname.capitalize()} {lastname.capitalize()} is not a member of InCollege.")
         return False
+
+def send_connection_request(from_username, to_username):
+    print(f"Connection request sent to {to_username} from {from_username}!")

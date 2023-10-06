@@ -4,7 +4,8 @@ class DatabaseObject:
   def __init__(self, databaseName):
     self.connection = sqlite3.connect(databaseName)
     self.cursor = self.connection.cursor()
-    self.cursor.execute("CREATE TABLE IF NOT EXISTS college_students (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, firstname TEXT, lastname TEXT, pass TEXT, language TEXT CHECK(language IN ('english', 'spanish')) default 'english', receive_emails BOOL default 1, receive_sms BOOL default 1, targeted_ads BOOL default 1)")
+    self.cursor.execute("CREATE TABLE IF NOT EXISTS college_students (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, firstname TEXT, lastname TEXT, pass TEXT, major TEXT, university TEXT, language TEXT CHECK(language IN ('english', 'spanish')) default 'english', receive_emails BOOL default 1, receive_sms BOOL default 1, targeted_ads BOOL default 1)")
+    self.cursor.execute("CREATE TABLE IF NOT EXISTS connections (user1 TEXT, user2 TEXT, PRIMARY KEY(user1, user2))")
     self.cursor.execute('''CREATE TABLE IF NOT EXISTS job_posts (id INTEGER PRIMARY KEY AUTOINCREMENT, firstname TEXT, lastname TEXT, title TEXT, description TEXT, employer TEXT, location TEXT, salary TEXT)''')
     self.connection.commit()
 
@@ -19,6 +20,44 @@ class DatabaseObject:
                     (firstname, lastname))
     return self.cursor.fetchone()
   
+  def search_students_by_criteria(self, lastname=None, university=None, major=None):
+    criteria = []
+    query = "SELECT * FROM college_students WHERE "
+    
+    if lastname:
+        query += "lastname = ? AND "
+        criteria.append(lastname.lower())
+
+    if university:
+        query += "university = ? AND "
+        criteria.append(university.lower())
+    
+    if major:
+        query += "major = ? AND "
+        criteria.append(major.lower())
+    
+    query = query[:-4]
+
+    self.cursor.execute(query, tuple(criteria))
+    return self.cursor.fetchall()
+  
+
+  def add_connection(self, user1, user2):
+    self.cursor.execute("INSERT INTO connections (user1, user2) VALUES (?, ?)", (user1, user2))
+    self.cursor.execute("INSERT INTO connections (user1, user2) VALUES (?, ?)", (user2, user1))
+    self.connection.commit()
+
+  def remove_connection(self, user1, user2):
+    self.cursor.execute("DELETE FROM connections WHERE user1 = ? AND user2 = ?", (user1, user2))
+    self.cursor.execute("DELETE FROM connections WHERE user1 = ? AND user2 = ?", (user2, user1))
+    self.connection.commit()
+
+  def get_connections(self, username):
+    self.cursor.execute("SELECT user2 FROM connections WHERE user1 = ?", (username,))
+    return [item[0] for item in self.cursor.fetchall()]
+
+
+  
   def get_user_info(self, username):
     self.cursor.execute("SELECT * FROM college_students WHERE username = ?",
                     (username,))
@@ -32,10 +71,10 @@ class DatabaseObject:
     self.cursor.execute("SELECT COUNT(*) FROM job_posts")
     return self.cursor.fetchone()[0]
   
-  def add_new_student(self, username, firstname, lastname, password):
+  def add_new_student(self, username, firstname, lastname, password, major, university):
     self.cursor.execute(
-      "INSERT INTO college_students (username, firstname, lastname, pass) VALUES (? , ?, ?, ?)",
-      (username.lower(), firstname.lower(), lastname.lower(), password))
+      "INSERT INTO college_students (username, firstname, lastname, pass, major, university) VALUES (? , ?, ?, ?, ?, ?)",
+      (username.lower(), firstname.lower(), lastname.lower(), password, major.lower(), university.lower()))
     self.connection.commit()
 
   def add_new_job_post(self, firstname, lastname, title, description, employer, location, salary):
@@ -64,7 +103,7 @@ def setupSQLite(databaseName):
   connection = sqlite3.connect(databaseName)
   cursor = connection.cursor()
 
-  cursor.execute("CREATE TABLE IF NOT EXISTS college_students (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, firstname TEXT, lastname TEXT, pass TEXT, language TEXT CHECK(language IN ('english', 'spanish')) default 'english', receive_emails BOOL default 1, receive_sms BOOL default 1, targeted_ads BOOL default 1)")
+  cursor.execute("CREATE TABLE IF NOT EXISTS college_students (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, firstname TEXT, lastname TEXT, pass TEXT, major TEXT, university TEXT, language TEXT CHECK(language IN ('english', 'spanish')) default 'english', receive_emails BOOL default 1, receive_sms BOOL default 1, targeted_ads BOOL default 1)")
   connection.commit()
 
   return connection
