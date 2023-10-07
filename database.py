@@ -6,6 +6,7 @@ class DatabaseObject:
     self.cursor = self.connection.cursor()
     self.cursor.execute("CREATE TABLE IF NOT EXISTS college_students (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, firstname TEXT, lastname TEXT, pass TEXT, major TEXT, university TEXT, language TEXT CHECK(language IN ('english', 'spanish')) default 'english', receive_emails BOOL default 1, receive_sms BOOL default 1, targeted_ads BOOL default 1)")
     self.cursor.execute("CREATE TABLE IF NOT EXISTS connections (user1 TEXT, user2 TEXT, PRIMARY KEY(user1, user2))")
+    self.cursor.execute("CREATE TABLE IF NOT EXISTS pending_connections (requester TEXT, requestee TEXT, PRIMARY KEY(requester, requestee))")
     self.cursor.execute('''CREATE TABLE IF NOT EXISTS job_posts (id INTEGER PRIMARY KEY AUTOINCREMENT, firstname TEXT, lastname TEXT, title TEXT, description TEXT, employer TEXT, location TEXT, salary TEXT)''')
     self.connection.commit()
 
@@ -56,6 +57,24 @@ class DatabaseObject:
     self.cursor.execute("SELECT user2 FROM connections WHERE user1 = ?", (username,))
     return [item[0] for item in self.cursor.fetchall()]
 
+  def send_friend_request(self, requester, requestee):
+    self.cursor.execute("INSERT INTO pending_connections (requester, requestee) VALUES (?, ?)", (requester, requestee))
+    self.connection.commit()
+
+  def get_pending_requests(self, username):
+    self.cursor.execute("SELECT requester FROM pending_connections WHERE requestee = ?", (username,))
+    return self.cursor.fetchall()
+
+  def accept_friend_request(self, requester, requestee):
+    self.add_connection(requester, requestee)
+    self.remove_pending_request(requester, requestee)
+
+  def reject_friend_request(self, requester, requestee):
+    self.remove_pending_request(requester, requestee)
+
+  def remove_pending_request(self, requester, requestee):
+    self.cursor.execute("DELETE FROM pending_connections WHERE requester = ? AND requestee = ?", (requester, requestee))
+    self.connection.commit()
 
   
   def get_user_info(self, username):

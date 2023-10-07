@@ -68,39 +68,67 @@ def find_someone_i_know(username):
         print("\nSelect a student to send a connection request or enter 0 to go back.")
         
         connection_choice = input("Your choice: ")
+        
         if connection_choice == '0':
             clear_terminal()
             return
         elif 0 < int(connection_choice) <= len(results):
             target_student = results[int(connection_choice) - 1]
-            send_connection_request(username, target_student[1])
+            db.send_friend_request(username, target_student[1])
+            clear_terminal()
+            print("Connection request sent!")
+            return
         else:
+            clear_terminal()
             print("Invalid choice.")
+            return
 
 
 def show_my_network(username):
     connections = db.get_connections(username)
     while True:
         clear_terminal()
+        
+        pending_requests = db.get_pending_requests(username)
+        if pending_requests:
+            print("Pending Requests:")
+            for idx, requester in enumerate(pending_requests):
+                print(f"{idx + 1}. {requester[0]}")
+            print("\nYour choice to accept (a#) or reject (r#). Ex: 'a1' or 'r1'")
+
         print("Your Network:\n")
         for i, connection in enumerate(connections):
             print(f"{i + 1}. {connection}")
+        print("\nMake your selection:")
         print("1. Disconnect from someone")
-        print("\n0. Go back")
-        choice = input("Your choice: ")
-        if choice == '0':
+        print("0. Go back")
+        choice = input("\nYour choice: ")
+
+        if choice.startswith('a') or choice.startswith('r'):
+            index = int(choice[1:]) - 1
+            if 0 <= index < len(pending_requests):
+                requester = pending_requests[index][0]
+                if choice.startswith('a'):
+                    db.accept_friend_request(requester, username)
+                    clear_terminal()
+                    print(f"You are now connected with {requester}!")
+                    return
+                else:
+                    db.reject_friend_request(requester, username)
+                    clear_terminal()
+                    print(f"Connection request from {requester} was rejected.")
+                    return
+                
+
+        elif choice == '0':
             clear_terminal()
             return
         elif choice == '1':
             disconnect_from_someone(username)
         else:
-            try:
-                selected = int(choice)
-                print(f"Selected {connections[selected - 1]}")
-                input("Press any key to continue...")
-            except:
-                print("Invalid selection!")
-                input("Press any key to continue...")
+            clear_terminal()
+            print("Invalid selection!")
+            return
 
 def disconnect_from_someone(username):
     connections = db.get_connections(username)
@@ -109,7 +137,7 @@ def disconnect_from_someone(username):
     for i, connection in enumerate(connections):
         print(f"{i + 1}. {connection}")
     print("\n0. Go back")
-    choice = input("Your choice: ")
+    choice = input("\nYour choice: ")
     if choice == '0':
         clear_terminal()
         return
@@ -118,11 +146,14 @@ def disconnect_from_someone(username):
         confirm = input(f"Do you really want to disconnect from {connections[selected - 1]}? (yes/no) ")
         if confirm.lower() == 'yes':
             db.remove_connection(username, connections[selected - 1])
+            clear_terminal()
             print(f"Disconnected from {connections[selected - 1]}")
-            input("Press any key to continue...")
+            return
         else:
+            clear_terminal()
             print("No changes were made.")
-            input("Press any key to continue...")
+            return
     except:
+        clear_terminal()
         print("Invalid selection!")
-        input("Press any key to continue...")
+        return
