@@ -44,9 +44,12 @@ class DatabaseObject:
   
 
   def add_connection(self, user1, user2):
-    self.cursor.execute("INSERT INTO connections (user1, user2) VALUES (?, ?)", (user1, user2))
-    self.cursor.execute("INSERT INTO connections (user1, user2) VALUES (?, ?)", (user2, user1))
-    self.connection.commit()
+    try:
+      self.cursor.execute("INSERT INTO connections (user1, user2) VALUES (?, ?)", (user1, user2))
+      self.cursor.execute("INSERT INTO connections (user1, user2) VALUES (?, ?)", (user2, user1))
+      self.connection.commit()
+    except:
+      print("An error occured, please try again.")
 
   def remove_connection(self, user1, user2):
     self.cursor.execute("DELETE FROM connections WHERE user1 = ? AND user2 = ?", (user1, user2))
@@ -65,6 +68,10 @@ class DatabaseObject:
     self.cursor.execute("SELECT requester FROM pending_connections WHERE requestee = ?", (username,))
     return self.cursor.fetchall()
 
+  def get_full_pending_requests(self, username):
+    self.cursor.execute("SELECT * FROM pending_connections WHERE requestee = ?", (username,))
+    return self.cursor.fetchall()
+
   def accept_friend_request(self, requester, requestee):
     self.add_connection(requester, requestee)
     self.remove_pending_request(requester, requestee)
@@ -75,7 +82,6 @@ class DatabaseObject:
   def remove_pending_request(self, requester, requestee):
     self.cursor.execute("DELETE FROM pending_connections WHERE requester = ? AND requestee = ?", (requester, requestee))
     self.connection.commit()
-
   
   def get_user_info(self, username):
     self.cursor.execute("SELECT * FROM college_students WHERE username = ?",
