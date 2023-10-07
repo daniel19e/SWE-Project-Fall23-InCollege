@@ -57,7 +57,14 @@ def try_posting_job(db, user_info):
 
 def display_home_page(username):
   user_info = db.get_user_info(username)
-  print(f"Welcome back, {username}!")
+  pending_requests = db.get_pending_requests(get_current_username())
+
+  if pending_requests:
+      print("----------------------------------\n")
+      print("[Notification] - You have " + str(len(pending_requests)) + " pending friend request(s). Go to the 'Friend Requests' tab to accept/reject.\n")
+      print("----------------------------------")
+      
+  print(f"Welcome back, {get_current_username()}!")
   while True:
     print("What would you like to do?\n")
     print("A. Search for a job")
@@ -68,6 +75,7 @@ def display_home_page(username):
     print("F. Useful Links")
     print("G. Important Links")
     print("H. Show My Network")
+    print("J. Friend Requests")
     print("\n0. Logout and go back\n")
 
     selection = input("Make a selection: ")
@@ -114,6 +122,9 @@ def display_home_page(username):
 
     elif selection.upper() == 'H':
       show_my_network(username)
+
+    elif selection.upper() == 'J':
+      show_friend_requests()
       
     # Exit
     elif (selection.upper() == '0'):
