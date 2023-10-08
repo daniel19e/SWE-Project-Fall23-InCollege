@@ -126,3 +126,6 @@ def test_find_someone_i_know_send_connection(mock_search_student_by_criteria, ca
             out, _ = capsys.readouterr()
             print("debug", out)
             assert "Connection request sent!" in out
+            
+def test_show_my_network():
+    pass

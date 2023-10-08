@@ -287,9 +287,7 @@ def show_incollege_important_links():
                       important_links_functs)
 
 def show_friend_requests():
-
     clear_terminal()
-
     while(True):
         pending_requests = db.get_full_pending_requests(get_current_username());
         print("-------------------------------------\n")
@@ -307,7 +305,7 @@ def show_friend_requests():
         choice = input("Enter choice: ")
 
         if(choice == "0"):
-            break;
+            break
         try:
             if(choice.startswith('a')):
                 #accept
