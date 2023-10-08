@@ -3,7 +3,6 @@ from unittest.mock import patch, Mock
 import pages  
 
 
-# (ALL OF THESE TEST CASES ARE NEW)
 ###################################################################################
 #Test the General Links
 def test_help_center_page(capsys):

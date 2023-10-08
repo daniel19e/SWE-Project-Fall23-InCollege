@@ -308,20 +308,24 @@ def show_friend_requests():
 
         if(choice == "0"):
             break;
-        if(choice.startswith('a')):
-            #accept
-            index = int(choice[1:])
-            db.accept_friend_request(pending_requests[index][0], pending_requests[index][1])
-            # pending_requests.pop(index)
+        try:
+            if(choice.startswith('a')):
+                #accept
+                index = int(choice[1:])
+                db.accept_friend_request(pending_requests[index][0], pending_requests[index][1])
+                # pending_requests.pop(index)
+                clear_terminal()
+                print('You successfully accepted the friend request.')
+            if(choice.startswith('r')):
+                #reject
+                index = int(choice[1:])
+                db.reject_friend_request(pending_requests[index][0], pending_requests[index][1])
+                # pending_requests.pop(index)
+                clear_terminal()
+                print('You successfully rejected the friend request.')
+        except:
             clear_terminal()
-            print('You successfully accepted the friend request.')
-        if(choice.startswith('r')):
-            #reject
-            index = int(choice[1:])
-            db.reject_friend_request(pending_requests[index][0], pending_requests[index][1])
-            # pending_requests.pop(index)
-            clear_terminal()
-            print('You successfully rejected the friend request.')
+            print("Invalid input. Try again.")
 
 
     clear_terminal()

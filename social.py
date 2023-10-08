@@ -56,9 +56,7 @@ def find_someone_i_know(username):
         clear_terminal()
         print("Invalid choice.")
         return
-
     results = db.search_students_by_criteria(**criteria)
-    
     if not results:
         print("No students found with the provided criteria.")
     else:
@@ -68,7 +66,7 @@ def find_someone_i_know(username):
         print("\nSelect a student to send a connection request or enter 0 to go back.")
         
         connection_choice = input("Your choice: ")
-        
+        print("debugcode", connection_choice, len(results), results)
         if connection_choice == '0':
             clear_terminal()
             return
