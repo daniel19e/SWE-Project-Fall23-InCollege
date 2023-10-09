@@ -3,7 +3,7 @@ from social import connect_with_student, find_someone_i_know, show_my_network
 from database import get_existing_db_object
 from ascii_art import aa_error404
 from pages import *
-from auth import logout_account
+from auth import logout_account, get_current_username
 
 db = get_existing_db_object()
 

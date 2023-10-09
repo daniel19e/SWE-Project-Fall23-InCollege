@@ -10,7 +10,7 @@ def create_mock_db():
     db.is_student_registered.return_value = False  # Mock student registration
     return db
 
-# Test case for exiting while creating an account (NEW TEST CASE)
+# Test case for exiting while creating an account 
 def test_exit_while_creating_account(capsys):
     # Create a mock database object
     mock_db = create_mock_db()
@@ -23,7 +23,7 @@ def test_exit_while_creating_account(capsys):
             assert "Exited Successfully!" in out
 
 
-# (NEW TEST CASE)
+
 def test_exit_while_logging_in(capsys):
     mock_db = create_mock_db()
     with patch('main.get_existing_db_object', return_value=mock_db):

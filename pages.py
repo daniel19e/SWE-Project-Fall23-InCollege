@@ -287,9 +287,7 @@ def show_incollege_important_links():
                       important_links_functs)
 
 def show_friend_requests():
-
     clear_terminal()
-
     while(True):
         pending_requests = db.get_full_pending_requests(get_current_username());
         print("-------------------------------------\n")
@@ -307,21 +305,25 @@ def show_friend_requests():
         choice = input("Enter choice: ")
 
         if(choice == "0"):
-            break;
-        if(choice.startswith('a')):
-            #accept
-            index = int(choice[1:])
-            db.accept_friend_request(pending_requests[index][0], pending_requests[index][1])
-            # pending_requests.pop(index)
+            break
+        try:
+            if(choice.startswith('a')):
+                #accept
+                index = int(choice[1:])
+                db.accept_friend_request(pending_requests[index][0], pending_requests[index][1])
+                # pending_requests.pop(index)
+                clear_terminal()
+                print('You successfully accepted the friend request.')
+            if(choice.startswith('r')):
+                #reject
+                index = int(choice[1:])
+                db.reject_friend_request(pending_requests[index][0], pending_requests[index][1])
+                # pending_requests.pop(index)
+                clear_terminal()
+                print('You successfully rejected the friend request.')
+        except:
             clear_terminal()
-            print('You successfully accepted the friend request.')
-        if(choice.startswith('r')):
-            #reject
-            index = int(choice[1:])
-            db.reject_friend_request(pending_requests[index][0], pending_requests[index][1])
-            # pending_requests.pop(index)
-            clear_terminal()
-            print('You successfully rejected the friend request.')
+            print("Invalid input. Try again.")
 
 
     clear_terminal()
