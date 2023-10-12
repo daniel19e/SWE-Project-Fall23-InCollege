@@ -288,17 +288,18 @@ def show_incollege_important_links():
 
 def show_friend_requests():
     clear_terminal()
+    username = get_current_username()
     while(True):
-        pending_requests = db.get_full_pending_requests(get_current_username());
+        pending_requests = db.get_full_pending_requests(username)
         print("-------------------------------------\n")
         if(len(pending_requests) > 0):
             print("You have the following friends requests:")
             for x in range(len(pending_requests)):
-                print(str(x) + ": Request from " + pending_requests[x][0])
+                print(str(x + 1) + ": Request from " + pending_requests[x][0])
             print("\n-------------------------------------")
-            print("You can accept friend request # by typing a# or reject by typing r#\n");
+            print("You can accept friend request # by typing a# or reject by typing r#\n")
         else:
-            print("You don't have any more pending friend requests. \n")
+            print("You don't have any more pending friend requests.\n")
             print("-------------------------------------\n")
 
         print("0. Go back\n")
@@ -306,24 +307,36 @@ def show_friend_requests():
 
         if(choice == "0"):
             break
-        try:
-            if(choice.startswith('a')):
+        
+        if(choice.startswith('a')):
+            try:
+                index = int(choice[1:]) - 1
+            except:
+                index = -1 
+            if 0 <= index < len(pending_requests):
                 #accept
-                index = int(choice[1:])
-                db.accept_friend_request(pending_requests[index][0], pending_requests[index][1])
+                db.accept_friend_request(pending_requests[index][0], username)
                 # pending_requests.pop(index)
                 clear_terminal()
                 print('You successfully accepted the friend request.')
-            if(choice.startswith('r')):
+                continue
+
+        if(choice.startswith('r')):
+            try:
+                index = int(choice[1:]) - 1
+            except:
+                index = -1
+            if 0 <= index < len(pending_requests):
                 #reject
-                index = int(choice[1:])
-                db.reject_friend_request(pending_requests[index][0], pending_requests[index][1])
+                index = int(choice[1:]) - 1
+                db.reject_friend_request(pending_requests[index][0], username)
                 # pending_requests.pop(index)
                 clear_terminal()
                 print('You successfully rejected the friend request.')
-        except:
-            clear_terminal()
-            print("Invalid input. Try again.")
+                continue
+        
+        clear_terminal()
+        print("Invalid input. Try again.")
 
 
     clear_terminal()
