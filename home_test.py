@@ -1,5 +1,6 @@
 import pytest
 from unittest.mock import patch
+import home
 from home import display_home_page
 
 
@@ -54,6 +55,17 @@ def test_invalid_input(capsys):
         out, _ = capsys.readouterr()
         assert "Error: Invalid choice. Please enter a valid character.\n" in out
 
+# (NEW TESTS) ====================================
+
+# Pending Request Notification Test
+def test_pending_request_notification(capsys):
+    with patch('builtins.input', side_effect=['0']), \
+            patch('home.db.get_pending_requests', return_value=[['pendingtest']]):
+        display_home_page("TestUser")
+        out, _ = capsys.readouterr()
+        assert "pending friend request(s). Go to the 'Friend Requests' tab to accept/reject." in out
+
+# ================================================
 
 if __name__ == '__main__':
     pytest.main()

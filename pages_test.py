@@ -169,3 +169,57 @@ def test_directories_link(capsys):
     captured = capsys.readouterr()
     assert "Oops! Under construction 🛠️" in captured.out
 ###################################################################################
+
+# (NEW TESTS) ====================================
+
+# Show Pending Resquests Page with no Pending Requests
+def test_show_pending_requests_no_requests(capsys):
+    with patch('builtins.input') as mock_input, \
+            patch('pages.db.get_full_pending_requests', return_value=[]):
+        mock_input.side_effect = ['0']
+        pages.show_friend_requests()
+        out, _ = capsys.readouterr()
+        assert "You don't have any more pending friend requests." in out
+
+# Show Pending Resquests Page with Pending Requests
+def test_show_pending_requests(capsys):
+    with patch('builtins.input') as mock_input, \
+            patch('pages.db.get_full_pending_requests', return_value=[['testpending1'], ['testpending2'], ['testpending3']]):
+        mock_input.side_effect = ['0']
+        pages.show_friend_requests()
+        out, _ = capsys.readouterr()
+        assert "You have the following friends requests:" in out
+        assert "testpending1" in out
+        assert "testpending2" in out
+        assert "testpending3" in out
+
+# Accept Pending Request
+def test_accept_pending_request(capsys):
+    with patch('builtins.input') as mock_input, \
+            patch('pages.db.get_full_pending_requests', return_value=[['testpending1']]), \
+            patch('pages.db.accept_friend_request', return_value=None):
+        mock_input.side_effect = ['a1', '0']
+        pages.show_friend_requests()
+        out, _ = capsys.readouterr()
+        assert "You successfully accepted the friend request" in out
+
+# Reject Pending Request
+def test_reject_pending_request(capsys):
+    with patch('builtins.input') as mock_input, \
+            patch('pages.db.get_full_pending_requests', return_value=[['testpending1']]), \
+            patch('pages.db.accept_friend_request', return_value=None):
+        mock_input.side_effect = ['r1', '0']
+        pages.show_friend_requests()
+        out, _ = capsys.readouterr()
+        assert "You successfully rejected the friend request" in out
+
+# Invalid Input in Pending Requests
+def test_pending_request_invalid_input(capsys):
+    with patch('builtins.input') as mock_input, \
+            patch('pages.db.get_full_pending_requests', return_value=[['testpending1'], ['testpending2'], ['testpending3']]):
+        mock_input.side_effect = ['x', 'a0', 'r0', '0']
+        pages.show_friend_requests()
+        out, _ = capsys.readouterr()
+        assert "Invalid input. Try again." in out
+
+# ================================================
