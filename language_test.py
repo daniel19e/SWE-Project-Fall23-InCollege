@@ -10,6 +10,7 @@ user_info = [None, None, None, None, None, 'English']
     ('1', "english"),
     ('2', "spanish"),
 ])
+# (NEW TEST CASE)
 def test_show_languages(option, language):
     with patch('pages.input', side_effect=[option, '0']) as mock_input, \
          patch('pages.db.get_user_info', return_value=user_info) as mock_user_info, \

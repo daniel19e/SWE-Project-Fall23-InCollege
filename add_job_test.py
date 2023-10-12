@@ -14,7 +14,7 @@ def clear_mock_db():
 clear_mock_db()
 
 def populate_mock_db(username, firstname, lastname, password):
-  db.add_new_student(username, firstname, lastname, password)
+  db.add_new_student(username, firstname, lastname, password, 'testmajor', 'testuniv')
 
 def test_add_one_job_to_db():
     clear_mock_db()

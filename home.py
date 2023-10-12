@@ -1,9 +1,9 @@
 from util import clear_terminal
-from social import connect_with_student
+from social import connect_with_student, find_someone_i_know, show_my_network
 from database import get_existing_db_object
 from ascii_art import aa_error404
 from pages import *
-from auth import logout_account
+from auth import logout_account, get_current_username
 
 db = get_existing_db_object()
 
@@ -57,7 +57,14 @@ def try_posting_job(db, user_info):
 
 def display_home_page(username):
   user_info = db.get_user_info(username)
-  print(f"Welcome back, {username}!")
+  pending_requests = db.get_pending_requests(get_current_username())
+
+  if pending_requests:
+      print("----------------------------------\n")
+      print("[Notification] - You have " + str(len(pending_requests)) + " pending friend request(s). Go to the 'Friend Requests' tab to accept/reject.\n")
+      print("----------------------------------")
+      
+  print(f"Welcome back, {get_current_username()}!")
   while True:
     print("What would you like to do?\n")
     print("A. Search for a job")
@@ -67,6 +74,8 @@ def display_home_page(username):
     print("E. Connect with other students")
     print("F. Useful Links")
     print("G. Important Links")
+    print("H. Show My Network")
+    print("J. Friend Requests")
     print("\n0. Logout and go back\n")
 
     selection = input("Make a selection: ")
@@ -85,11 +94,8 @@ def display_home_page(username):
     
     # Find someone they know
     elif (selection.upper() == 'C'):
-      clear_terminal()
-      print(aa_error404)
-      print("Oops! Under construction 🛠️\n")
-      input("Enter any input to go back: ")
-      clear_terminal()
+        clear_terminal()
+        find_someone_i_know(username)
     
     # Learn a new skill
     elif (selection.upper() == 'D'):
@@ -113,6 +119,12 @@ def display_home_page(username):
 
     elif (selection.upper() == 'G'):
       show_incollege_important_links()
+
+    elif selection.upper() == 'H':
+      show_my_network(username)
+
+    elif selection.upper() == 'J':
+      show_friend_requests()
       
     # Exit
     elif (selection.upper() == '0'):

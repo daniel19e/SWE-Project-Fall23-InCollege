@@ -17,19 +17,19 @@ def test_search_for_job(capsys):
         assert "Oops! Under construction 🛠️\n" in out
 
 
-# Test case for finding someone they know
+# Test case for finding someone they know (NEW)
 def test_find_someone_they_know(capsys):
-    with patch('builtins.input', side_effect=['C', 'X', '0']):
+    with patch('builtins.input', side_effect=['C', '0', '0']):
         display_home_page("TestUser")
         out, _ = capsys.readouterr()
-        assert "Oops! Under construction 🛠️\n" in out
+        assert "Find someone you know by:" in out
 
 
 # Test case for learning a new skill (Options 1-5)
 def test_learn_skills(capsys):
     effects = []
     for skill_option in range(1, 6):
-        effects.append('C')
+        effects.append('D')
         effects.append(str(skill_option))
         effects.append('X')
     effects.append('0')
@@ -45,7 +45,7 @@ def test_return_to_previous_level(capsys):
     with patch('builtins.input', side_effect=['0']):
         display_home_page("TestUser")
         out, _ = capsys.readouterr()
-        assert "Welcome back, TestUser!" in out
+        assert "Welcome back" in out
 
 
 # Test case for invalid input
