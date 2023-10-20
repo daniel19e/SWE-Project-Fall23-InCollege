@@ -8,6 +8,7 @@ class DatabaseObject:
     self.cursor.execute("CREATE TABLE IF NOT EXISTS connections (user1 TEXT, user2 TEXT, PRIMARY KEY(user1, user2))")
     self.cursor.execute("CREATE TABLE IF NOT EXISTS pending_connections (requester TEXT, requestee TEXT, PRIMARY KEY(requester, requestee))")
     self.cursor.execute('''CREATE TABLE IF NOT EXISTS job_posts (id INTEGER PRIMARY KEY AUTOINCREMENT, firstname TEXT, lastname TEXT, title TEXT, description TEXT, employer TEXT, location TEXT, salary TEXT)''')
+    self.cursor.execute('''CREATE TABLE IF NOT EXISTS student_profiles (username TEXT PRIMARY KEY, title TEXT, major TEXT, about TEXT, title1 TEXT, employer1 TEXT, start1 TEXT, end1 TEXT, location1 TEXT, description1 TEXT, title2 TEXT, employer2 TEXT, start2 TEXT, end2 TEXT, location2 TEXT, description2 TEXT, title3 TEXT, employer3 TEXT, start3 TEXT, end3 TEXT, location3 TEXT, description3 TEXT, university TEXT, degree TEXT, years_attended TEXT)''')
     self.connection.commit()
 
   def get_connection(self):
