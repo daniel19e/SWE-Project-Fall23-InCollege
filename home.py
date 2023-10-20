@@ -4,6 +4,8 @@ from database import get_existing_db_object
 from ascii_art import aa_error404
 from pages import *
 from auth import logout_account, get_current_username
+from student_profile import create_or_edit_profile, display_profile
+
 
 db = get_existing_db_object()
 
@@ -76,6 +78,7 @@ def display_home_page(username):
     print("G. Important Links")
     print("H. Show My Network")
     print("J. Friend Requests")
+    print("I. Profile")
     print("\n0. Logout and go back\n")
 
     selection = input("Make a selection: ")
@@ -125,7 +128,18 @@ def display_home_page(username):
 
     elif selection.upper() == 'J':
       show_friend_requests()
-      
+
+    elif selection.upper() == 'I':
+      print("1.Create/Edit Profile")
+      print("2.View Profile")
+      print("Press any key to return back")
+      selection = input("Choose your option: ")
+      if selection == '1':
+        create_or_edit_profile(db, username)
+      elif selection == '2':
+        display_profile(db, username)
+      else:
+        break
     # Exit
     elif (selection.upper() == '0'):
       clear_terminal()
