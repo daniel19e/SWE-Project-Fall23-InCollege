@@ -43,7 +43,6 @@ class DatabaseObject:
     self.cursor.execute(query, tuple(criteria))
     return self.cursor.fetchall()
   
-
   def add_connection(self, user1, user2):
     try:
       self.cursor.execute("INSERT INTO connections (user1, user2) VALUES (?, ?)", (user1, user2))
@@ -114,22 +113,21 @@ class DatabaseObject:
                  (username.lower(), password))
     return self.cursor.fetchone()
   
+  def profile_exists(self, username):
+    cursor = self.connection.cursor()
+    cursor.execute("SELECT * FROM student_profiles WHERE username = ?", (username,))
+    return bool(cursor.fetchone())
+  
   def close_connection(self):
     self.connection.close()
 
-    
-  
-  
 db = DatabaseObject("incollege_database.db")
 def get_existing_db_object():
   return db
-
 def setupSQLite(databaseName):
   global connection, cursor
   connection = sqlite3.connect(databaseName)
   cursor = connection.cursor()
-
   cursor.execute("CREATE TABLE IF NOT EXISTS college_students (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, firstname TEXT, lastname TEXT, pass TEXT, major TEXT, university TEXT, language TEXT CHECK(language IN ('english', 'spanish')) default 'english', receive_emails BOOL default 1, receive_sms BOOL default 1, targeted_ads BOOL default 1)")
   connection.commit()
-
   return connection
