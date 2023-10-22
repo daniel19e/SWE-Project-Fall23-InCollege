@@ -1,8 +1,8 @@
 import pytest
-from unittest.mock import Mock
+from unittest.mock import Mock, MagicMock, ANY
 from unittest.mock import patch
 import social
-from social import connect_with_student
+from social import connect_with_student, show_my_network
 
 
 @pytest.fixture
@@ -134,7 +134,7 @@ def test_show_my_network_go_back(capsys):
         mock_input.side_effect = ['0']
         social.show_my_network('testusername')
         out, _ = capsys.readouterr()
-        assert out == "Your Network:\n\n\nMake your selection:\n1. Disconnect from someone\n0. Go back\n"
+        assert out == "\nYour Network:\n\nMake your selection:\n1. Disconnect from someone\n0. Go back\n"
 
 
 def test_show_my_network_show_pending_requests_and_connections(capsys):
@@ -179,5 +179,65 @@ def test_show_my_network_accept_pending_request(capsys):
             mock_input.side_effect = [f'a{i}']
             social.show_my_network('testusername')
             out, _ = capsys.readouterr()
-            assert f"You are now connected with pending{i}" in out # check we can accept all pending connections
+            # check we can accept all pending connections
+            assert f"You are now connected with pending{i}" in out
+
+
 # (NEW TESTS) -------------------------
+def test_friend_list_display_update_friend_with_profile(capsys):
+    """
+    Test to check if the friend list is displayed with an option to select a friend's profile
+    """
+    # friend with a profile
+    with patch('builtins.input') as mocked_input,    \
+            patch('social.db.get_connections', return_value=['john_doe', 'jane_doe']), \
+            patch('social.db.profile_exists', return_value=True), \
+            patch('student_profile.display_profile') as mocked_display_profile:
+        mocked_input.side_effect = ['p1', '0']  # press p1 and go back
+        show_my_network('current_user')
+        mocked_display_profile.assert_called_with(ANY, 'john_doe')
+
+
+def test_friend_list_show_profile_option(capsys):
+    with patch('builtins.input') as mocked_input,    \
+            patch('social.db.get_connections', return_value=['john_doe', 'jane_doe']), \
+            patch('social.db.profile_exists', return_value=True), \
+            patch('student_profile.display_profile') as mocked_display_profile:
+        mocked_input.side_effect = ['p1', '0']  # press p1 and go back
+        show_my_network('current_user')
+        mocked_display_profile.assert_called_with(ANY, 'john_doe')
+        out, _ = capsys.readouterr()
+        assert "john_doe - View Profile (press p1)" in out
+        assert "jane_doe - View Profile (press p2)" in out
+
+
+def test_friend_list_display_update_friend_with_no_profile(capsys):
+    """
+    Test to check if the friend list is displayed with an option to select a friend's profile
+    """
+    # friend with a profile
+    with patch('builtins.input') as mocked_input,    \
+            patch('social.db.get_connections', return_value=['john_doe', 'jane_doe']), \
+            patch('social.db.profile_exists', return_value=False), \
+            patch('student_profile.display_profile') as mocked_display_profile:
+        mocked_input.side_effect = ['p1', '0']  # press p1 and go back
+        show_my_network('current_user')
+        out, _ = capsys.readouterr()
+        assert "john_doe" in out
+        assert "jane_doe" in out
+        assert "Invalid profile choice or profile does not exist." in out
+        mocked_display_profile.assert_not_called()
+
+
+def test_profile_display_is_called(capsys):
+    """
+    Test to check if the correct friend's profile is displayed when selected
+    """
+    with patch('student_profile.display_profile') as mocked_display_profile, \
+            patch('builtins.input') as mocked_input, \
+            patch('social.db.get_connections', return_value=['john_doe']), \
+            patch('social.db.profile_exists', return_value=True), \
+            patch('student_profile.display_profile') as mocked_display_profile:
+        mocked_input.side_effect = ['p1', '0']
+        show_my_network('current_user')
+        mocked_display_profile.assert_called_with(ANY, 'john_doe')
