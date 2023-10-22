@@ -85,24 +85,33 @@ def show_my_network(username):
     connections = db.get_connections(username)
     while True:
         pending_requests = db.get_pending_requests(username)
+        
+        # Display pending requests
         if pending_requests:
             print("Pending Requests:")
             for idx, requester in enumerate(pending_requests):
                 print(f"{idx + 1}. {requester[0]}")
             print("\nYour choice to accept (a#) or reject (r#). Ex: 'a1' or 'r1'")
 
-        print("Your Network:\n")
+        # Display friends list with profile option if they have one
+        print("\nYour Network:")
         for i, connection in enumerate(connections):
-            print(f"{i + 1}. {connection}")
+            if db.profile_exists(connection): # Using profile_exists to check if friend has a profile
+                print(f"{i + 1}. {connection} - View Profile (press p{i+1})")
+            else:
+                print(f"{i + 1}. {connection}")
+
         print("\nMake your selection:")
         print("1. Disconnect from someone")
         print("0. Go back")
         choice = input("\nYour choice: ")
+
         if choice == '0':
             clear_terminal()
             return
         elif choice == '1':
             disconnect_from_someone(username)
+
         elif choice.startswith('a'):
             try:
                 index = int(choice[1:]) - 1
@@ -129,7 +138,20 @@ def show_my_network(username):
                 return 
             clear_terminal()
             print("Invalid request choice.")
-            continue    
+            continue
+        elif choice.startswith('p'): # If user wants to view a friend's profile
+            try:
+                index = int(choice[1:]) - 1
+            except:
+                index = -1
+            if 0 <= index < len(connections) and db.profile_exists(connections[index]):
+                from student_profile import display_profile
+                display_profile(db, connections[index])
+                clear_terminal()
+            else:
+                clear_terminal()
+                print("Invalid profile choice or profile does not exist.")
+                continue    
         else:
             clear_terminal()
             print("Invalid selection!")

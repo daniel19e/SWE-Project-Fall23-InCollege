@@ -1,62 +1,124 @@
+import re  # Regular expressions library used for validation.
+
 def format_string(s):
-    '''Returns the string with each word's first letter capitalized.'''
+    '''Returns the string with only the first letter of each word capitalized and the rest lowercase.'''
     return ' '.join(word.capitalize() for word in s.split())
+
+
+def validate_date(input_date):
+    '''Check if the date matches the YYYY-MM-DD format.'''
+    if not input_date:
+        return True  # Empty string is considered valid here.
+    pattern = re.compile("^[0-9]{4}-[0-9]{2}-[0-9]{2}$")
+    return bool(pattern.match(input_date))
+
+def input_with_prefill(prompt, prefill=''):
+    '''Input function to handle default text.'''
+    if prefill:
+        user_input = input(f"{prompt} [{prefill}]: ").strip()
+        return user_input or prefill
+    return input(prompt).strip()
+
+def check_exit(command):
+    '''Check if the exit command was given.'''
+    return command.lower() == 'exit'
 
 def create_or_edit_profile(db, username):
     cursor = db.get_cursor()
-    title = input("Enter your title: ")
-    major = format_string(input("Enter your major: "))
-    about = input("Enter about yourself: ")
-
-    experiences = []
-
-    for i in range(3):
-        print(f"\nEnter details for Experience {i + 1} (Press enter in order to skip):")
-        experience_title = input("Title: ")
-        if not experience_title:
-            #for the other developer, this line deletes the previous record of the experience you have now skipped, if you want the code to keep the previous experience's record, delete these 2 lines and use break
-            experiences.append({f"title{i+1}": "", f"employer{i+1}": "", f"start{i+1}": "", f"end{i+1}": "", f"location{i+1}": "", f"description{i+1}": ""})
-            continue
-        employer = input("Employer: ")
-        start_date = input("Date started (YYYY-MM-DD): ")
-        end_date = input("Date ended (YYYY-MM-DD): ")
-        location = input("Location: ")
-        description = input("Description: ")
-        experiences.append({f"title{i+1}": experience_title, f"employer{i+1}": employer, f"start{i+1}": start_date, f"end{i+1}": end_date, f"location{i+1}": location, f"description{i+1}": description})
-
-    university = format_string(input("\nEnter University name: "))
-    degree = format_string(input("Degree: "))
-    years_attended = input("Years attended: ")
-
-    profile_data = {"username": username,
-        "title": title,
-        "major": major,
-        "about": about,
-        "university": university,
-        "degree": degree,
-        "years_attended": years_attended}
-
-    for i, exp in enumerate(experiences):
-        profile_data.update(exp)
 
     cursor.execute("SELECT * FROM student_profiles WHERE username = ?", (username,))
     existing_profile = cursor.fetchone()
 
-    #base code for updating and inserting the database, i have removed data_tuples here as professor said so(it worked)
+    # Start with a blank profile data dictionary or existing data if available.
     if existing_profile:
-        placeholder = ", ".join([f"{col} = ?" for col in profile_data.keys()])
-        incollege_sqlite = f"UPDATE student_profiles SET {placeholder} WHERE username = ?"
-        cursor.execute(incollege_sqlite, list(profile_data.values()) + [username])
-        #print("Database Updated")
-        db.connection.commit()
+        profile_data = dict(zip([desc[0] for desc in cursor.description], existing_profile))
     else:
-        columns = ", ".join(profile_data.keys())
-        placeholders = ", ".join(['?'] * len(profile_data))
-        incollege_sqlite = f"INSERT INTO student_profiles ({columns}) VALUES ({placeholders})"
-        cursor.execute(incollege_sqlite, list(profile_data.values()))
-        #print("Database Inserted")
-        db.connection.commit()
+        profile_data = {"username": username}
 
+    # Define the prompts for user input.
+    prompts = [
+        ("title", "Enter your title: "),
+        ("major", "Enter your major: "),
+        ("about", "Enter about: "),
+        ("university", "Enter your university: "),
+        ("degree", "Enter your degree: "),
+        ("years_attended", "Enter your years attended (YYYY-YYYY): ")
+    ]
+
+    # Gather user input for the base profile information.
+    for field, prompt in prompts:
+        prefill = profile_data.get(field, '')
+        user_input = input_with_prefill(prompt, prefill)
+
+        # Check for the 'exit' command.
+        if check_exit(user_input):
+            print("\nSaving and exiting...")
+            save_profile(db, profile_data, username)
+            return
+
+        if field in ["major", "university"]:  # Adjust this line to include "university"
+            user_input = format_string(user_input)
+
+        profile_data[field] = user_input
+
+    # Handle the experience section as a special case.
+    for i in range(1, 4):  # Experience entries are 1-indexed.
+        print(f"\nEnter details for Experience {i} (leave the title empty to skip):")
+
+        experience = {}
+        for field in ["title", "employer", "start", "end", "location", "description"]:
+            field_key = f"{field}{i}"  # The key in the profile data.
+            prompt = f"{field.capitalize()} date (YYYY-MM-DD): " if "date" in field else f"{field.capitalize()}: "
+            prefill = profile_data.get(field_key, '')
+            user_input = input_with_prefill(prompt, prefill)
+
+            # Check for the 'exit' command.
+            if check_exit(user_input):
+                print("\nSaving and exiting...")
+                save_profile(db, profile_data, username)
+                return
+
+            if field in ["start", "end"] and not validate_date(user_input):
+                while not validate_date(user_input):
+                    print("Invalid date format. Please follow the YYYY-MM-DD format.")
+                    user_input = input(prompt)
+
+            experience[field] = user_input
+
+        # If the title for this experience is empty, we assume no more experiences are forthcoming.
+        if not experience["title"]:
+            break
+
+        # Save the experience to the profile data.
+        for key, value in experience.items():
+            profile_data[f"{key}{i}"] = value
+
+    # Save the completed profile.
+    save_profile(db, profile_data, username)
+    print("\nProfile updated successfully!")
+
+def save_profile(db, profile_data, username):
+    cursor = db.get_cursor()
+    
+    if 'username' in profile_data:
+        # Check if we're updating an existing profile or creating a new one.
+        cursor.execute("SELECT * FROM student_profiles WHERE username = ?", (username,))
+        if cursor.fetchone():
+            # Update the existing profile.
+            placeholders = ", ".join([f"{key} = ?" for key in profile_data.keys()])
+            values = list(profile_data.values())
+            sql_query = f"UPDATE student_profiles SET {placeholders} WHERE username = ?"
+            cursor.execute(sql_query, values + [username])
+        else:
+            # Insert a new profile.
+            columns = ", ".join(profile_data.keys())
+            placeholders = ", ".join(['?'] * len(profile_data))
+            sql_query = f"INSERT INTO student_profiles ({columns}) VALUES ({placeholders})"
+            cursor.execute(sql_query, list(profile_data.values()))
+
+        db.connection.commit()  # Committing the changes to the database.
+    else:
+        print("No profile changes to save.")
 
 def display_profile(db, username):
     cursor = db.get_cursor()
@@ -64,27 +126,28 @@ def display_profile(db, username):
     profile = cursor.fetchone()
 
     if profile:
+        profile_dict = dict(zip([desc[0] for desc in cursor.description], profile))
+
         print("\nProfile Details:")
-        print("Title:", profile[1])
-        print("Major:", profile[2])
-        print("About:", profile[3])
+        # Printing general details first, excluding the fields related to experiences.
+        general_fields = ["username", "title", "major", "about", "university", "degree", "years_attended"]
+        for key in general_fields:
+            formatted_key = key.replace("_", " ").capitalize()
+            print(f"{formatted_key}: {profile_dict.get(key, '')}")
 
-        count = 4
-        for i in range(3):
-            if profile[count]:
-                print(f"\nExperience {i + 1}:")
-                print("Title:", profile[count])
-                print("Employer:", profile[count+1])
-                print("Start Date:", profile[count+2])
-                print("End Date:", profile[count+3])
-                print("Location:", profile[count+4])
-                print("Description:", profile[count+5])
-                count = count + 6
-        print("\nEducation:")
-        print("University:", profile[22])
-        print("Degree:", profile[23])
-        print("Years Attended:", profile[24])
+        # Printing experiences.
+        for i in range(1, 4):  # Experience entries are 1-indexed.
+            title_key = f"title{i}"
+            if profile_dict.get(title_key):
+                print(f"\nExperience {i}:")
+                exp_keys = ["title", "employer", "start", "end", "location", "description"]
+                for exp_key in exp_keys:
+                    full_key = f"{exp_key}{i}"
+                    # Format the key for printing, capitalizing it and removing underscores.
+                    formatted_exp_key = exp_key.capitalize()
+                    print(f"{formatted_exp_key}: {profile_dict.get(full_key, '')}")
 
+        # Wait for the user to press Enter to return.
+        input("\nPress Enter to return...")
     else:
         print("No profile found!")
-
