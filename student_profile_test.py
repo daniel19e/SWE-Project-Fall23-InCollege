@@ -1,6 +1,7 @@
 import pytest
 from unittest.mock import Mock, MagicMock, patch, call
 from student_profile import create_or_edit_profile, save_profile, display_profile
+import database
 
 mock_db = Mock()
 mock_db.get_cursor = MagicMock()
@@ -169,3 +170,101 @@ def test_no_username(capsys):
     out, _ = capsys.readouterr()
     assert "No profile changes to save." in out
     mock_cursor.execute.assert_not_called()
+
+
+def test_create_complete_profile(monkeypatch, capsys):
+    mock_input_values = iter(
+        [
+            'Jason Profile', 'Computer Science', 'This is a test about section.', 'University of South Florida', 'Bachelor', '2020-2024',
+            'Job title 1', 'Employer 1', '2001-01-01', '2001-01-01', 'Location 1', 'Description 1',
+            'Job title 2', 'Employer 2', '2001-01-01', '2001-01-01', 'Location 2', 'Description 2',
+            'Job title 3', 'Employer 3', '2001-01-01', '2001-01-01', 'Location 3', 'Description 3',
+        ])
+    
+    monkeypatch.setattr(
+        'builtins.input', lambda _: next(mock_input_values, ''))
+
+    mock_cursor = MagicMock()
+    mock_cursor.fetchone.return_value = None
+
+    mock_db = MagicMock()
+    mock_db.get_cursor.return_value = mock_cursor
+
+    create_or_edit_profile(mock_db, 'testuser')
+    out, _ = capsys.readouterr()
+    assert "Profile updated successfully!" in out
+
+def test_display_complete_profile(capsys):
+    existing_profile_data = (
+        'testuser', 'Jason Profile', 'Computer Science', 'This is a test about section.', 'University of South Florida', 'Bachelor', '2020-2024',
+            'Job title 1', 'Employer 1', '2001-01-01', '2001-01-01', 'Location 1', 'Description 1',
+            'Job title 2', 'Employer 2', '2001-01-01', '2001-01-01', 'Location 2', 'Description 2',
+            'Job title 3', 'Employer 3', '2001-01-01', '2001-01-01', 'Location 3', 'Description 3',
+    )
+    mock_description = [
+        ('username',),
+        ('title',),
+        ('major',),
+        ('about',),
+        ('university',),
+        ('degree',),
+        ('years_attended',),
+        ('title1',),
+        ('employer1',),
+        ('start1',),
+        ('end1',),
+        ('location1',),
+        ('description1',),
+        ('title2',),
+        ('employer2',),
+        ('start2',),
+        ('end2',),
+        ('location2',),
+        ('description2',),
+        ('title3',),
+        ('employer3',),
+        ('start3',),
+        ('end3',),
+        ('location3',),
+        ('description3',),
+    ]
+    mock_cursor = MagicMock()
+    mock_cursor.fetchone.return_value = existing_profile_data
+    mock_cursor.description = mock_description
+    mock_db.get_cursor.return_value = mock_cursor
+
+    with patch('builtins.input', side_effect=['A']):
+        display_profile(mock_db, 'testuser')
+        out, _ = capsys.readouterr()
+        expected_output = [
+            "\nProfile Details:",
+            "Username: testuser",
+            "Title: Jason Profile",
+            "Major: Computer Science",
+            "About: This is a test about section.",
+            "University: University of South Florida",
+            "Degree: Bachelor",
+            "Years attended: 2020-2024\n",
+            "Experience 1:",
+            "Title: Job title 1",
+            "Employer: Employer 1",
+            "Start: 2001-01-01",
+            "End: 2001-01-01",
+            "Location: Location 1",
+            "Description: Description 1\n",
+            "Experience 2:",
+            "Title: Job title 2",
+            "Employer: Employer 2",
+            "Start: 2001-01-01",
+            "End: 2001-01-01",
+            "Location: Location 2",
+            "Description: Description 2\n",
+            "Experience 3:",
+            "Title: Job title 3",
+            "Employer: Employer 3",
+            "Start: 2001-01-01",
+            "End: 2001-01-01",
+            "Location: Location 3",
+            "Description: Description 3\n",
+        ]
+        assert out == "\n".join(expected_output)
