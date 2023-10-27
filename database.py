@@ -3,11 +3,13 @@ import sqlite3
 class DatabaseObject:
   def __init__(self, databaseName):
     self.connection = sqlite3.connect(databaseName)
+    self.connection.row_factory = sqlite3.Row
     self.cursor = self.connection.cursor()
     self.cursor.execute("CREATE TABLE IF NOT EXISTS college_students (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, firstname TEXT, lastname TEXT, pass TEXT, major TEXT, university TEXT, language TEXT CHECK(language IN ('english', 'spanish')) default 'english', receive_emails BOOL default 1, receive_sms BOOL default 1, targeted_ads BOOL default 1)")
     self.cursor.execute("CREATE TABLE IF NOT EXISTS connections (user1 TEXT, user2 TEXT, PRIMARY KEY(user1, user2))")
     self.cursor.execute("CREATE TABLE IF NOT EXISTS pending_connections (requester TEXT, requestee TEXT, PRIMARY KEY(requester, requestee))")
     self.cursor.execute('''CREATE TABLE IF NOT EXISTS job_posts (id INTEGER PRIMARY KEY AUTOINCREMENT, firstname TEXT, lastname TEXT, title TEXT, description TEXT, employer TEXT, location TEXT, salary TEXT)''')
+    self.cursor.execute('''CREATE TABLE IF NOT EXISTS job_applications (id INTEGER PRIMARY KEY AUTOINCREMENT, job_id INTEGER, student_id TEXT, graduation_date TEXT, start_date TEXT, student_application TEXT, FOREIGN KEY (job_id) REFERENCES job_posts(id))''')
     self.cursor.execute('''CREATE TABLE IF NOT EXISTS student_profiles (username TEXT PRIMARY KEY, title TEXT, major TEXT, about TEXT, title1 TEXT, employer1 TEXT, start1 TEXT, end1 TEXT, location1 TEXT, description1 TEXT, title2 TEXT, employer2 TEXT, start2 TEXT, end2 TEXT, location2 TEXT, description2 TEXT, title3 TEXT, employer3 TEXT, start3 TEXT, end3 TEXT, location3 TEXT, description3 TEXT, university TEXT, degree TEXT, years_attended TEXT)''')
     self.connection.commit()
 
@@ -96,6 +98,26 @@ class DatabaseObject:
     self.cursor.execute("SELECT COUNT(*) FROM job_posts")
     return self.cursor.fetchone()[0]
   
+  def get_job_by_id(self, job_id):    
+    self.cursor.execute("SELECT * FROM job_posts WHERE id = ?", (job_id,))
+    return self.cursor.fetchone()
+
+  def already_applied(self, student_id, job_id):
+    self.cursor.execute('''SELECT COUNT(*) FROM job_applications WHERE student_id = ? AND job_id = ?''', (student_id, job_id))
+    return self.cursor.fetchone()[0] > 0
+
+  def add_applications(self, application):
+    self.cursor.execute('''INSERT INTO job_applications (job_id, student_id, graduation_date, start_date, student_application) VALUES (?, ?, ?, ?, ?)''', (application['job_id'], application['student_id'], application['graduation_date'], application['start_date'], application['student_application']))
+    self.connection.commit()
+
+  def get_applications_of_student(self, student_id):
+    self.cursor.execute("SELECT job_id FROM job_applications WHERE student_id = ?", (student_id,))
+    return [job[0] for job in self.cursor.fetchall()]
+
+  def get_jobs(self):
+    self.cursor.execute("SELECT * FROM job_posts")
+    return self.cursor.fetchall()
+
   def add_new_student(self, username, firstname, lastname, password, major, university):
     self.cursor.execute(
       "INSERT INTO college_students (username, firstname, lastname, pass, major, university) VALUES (? , ?, ?, ?, ?, ?)",
