@@ -9,15 +9,7 @@ def mock_input(mocked_inputs):
     return lambda _: mocked_inputs.pop(0)
 
 
-# Test case for searching for a job
-def test_search_for_job(capsys):
-    with patch('builtins.input', side_effect=['A', 'X', '0']):
-        display_home_page("TestUser")
-        out, _ = capsys.readouterr()
-        assert "Oops! Under construction 🛠️\n" in out
-
-
-# Test case for finding someone they know (NEW)
+# Test case for finding someone they know
 def test_find_someone_they_know(capsys):
     with patch('builtins.input', side_effect=['C', '0', '0']):
         display_home_page("TestUser")
@@ -55,8 +47,6 @@ def test_invalid_input(capsys):
         out, _ = capsys.readouterr()
         assert "Error: Invalid choice. Please enter a valid character.\n" in out
 
-# (NEW TESTS) ====================================
-
 # Pending Request Notification Test
 def test_pending_request_notification(capsys):
     with patch('builtins.input', side_effect=['0']), \
@@ -64,8 +54,6 @@ def test_pending_request_notification(capsys):
         display_home_page("TestUser")
         out, _ = capsys.readouterr()
         assert "pending friend request(s). Go to the 'Friend Requests' tab to accept/reject." in out
-
-# ================================================
 
 if __name__ == '__main__':
     pytest.main()

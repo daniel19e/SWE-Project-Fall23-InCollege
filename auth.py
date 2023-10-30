@@ -4,7 +4,7 @@ from database import get_existing_db_object
 
 db = get_existing_db_object()
 
-current_username = "";
+current_username = ""
 
 def validate_password(password):
   regex = r'^(?=.*[A-Z])(?=.*\d)(?=.*[)(}{><_+:@#$%&!?^*]).{8,12}$'
@@ -52,8 +52,8 @@ def login_account(db, username, password):
 
 def logout_account():
   global current_username
-  current_username = "";
+  current_username = ""
 
 def get_current_username():
   global current_username
-  return current_username;
+  return current_username
