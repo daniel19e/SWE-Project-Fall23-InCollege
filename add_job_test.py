@@ -1,5 +1,5 @@
 import pytest
-import home
+from jobs import try_posting_job
 import database
 from unittest.mock import Mock
 from unittest.mock import patch
@@ -26,22 +26,22 @@ def test_post_one_job(capsys):
     clear_mock_db()
     populate_mock_db("testuser1", "Test", "User", "Test123*")
     with patch("builtins.input", side_effect=["Test Job Title", "Test Job Description", "Test Employer", "Test Location", "50000", "0"]):
-        home.try_posting_job(db, ["test_user1", "Test", "User", "Test123*"])
+        try_posting_job(db, ["test_user1", "Test", "User", "Test123*"])
         out, err = capsys.readouterr()
         assert db.get_number_of_jobs() == 1
 
 
 def test_post_jobs_over_limit(capsys):
-    # Try posting more than 5 jobs
+    # Try posting more than 10 jobs
     output = ""
-    for i in range(6):
+    for i in range(11):
         with patch("builtins.input", side_effect=["Test Job Title", "Test Job Description", "Test Employer", "Test Location", "50000", "0"]):
-            home.try_posting_job(db, ["test_user1", "Test", "User", "Test123*"])
+            try_posting_job(db, ["test_user1", "Test", "User", "Test123*"])
             out, err = capsys.readouterr()
             output += out
 
     
     # Check if the maximum job posts limit is enforced
-    assert db.get_number_of_jobs() == 5
+    assert db.get_number_of_jobs() == 10
     assert "Error: Maximum job posts limit reached." in output
     clear_mock_db()
