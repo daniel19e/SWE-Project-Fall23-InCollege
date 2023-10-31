@@ -32,22 +32,6 @@ def test_post_one_job(capsys):
         assert db.get_number_of_jobs() == 1
 
 
-def test_post_jobs_over_limit(capsys):
-    # Try posting more than 10 jobs
-    output = ""
-    for i in range(11):
-        with patch("builtins.input", side_effect=["Test Job Title", "Test Job Description", "Test Employer", "Test Location", "50000", "0"]):
-            try_posting_job(db, ["test_user1", "Test", "User", "Test123*"])
-            out, err = capsys.readouterr()
-            output += out
-
-    
-    # Check if the maximum job posts limit is enforced
-    assert db.get_number_of_jobs() == 10
-    assert "Error: Maximum job posts limit reached." in output
-    clear_mock_db()
-
-
 
 def test_try_deleting_another_users_job(capsys):
     clear_mock_db()
@@ -170,3 +154,75 @@ def test_try_deleting_job(capsys):
         try_deleting_job(mock_user_info)
         out, err = capsys.readouterr()
         assert 'Job deleted sucessfully!' in out
+
+
+
+
+#NEW TESTS ----------------------------------------------------------------------------------------------------------------------------------------------------
+
+def test_post_jobs_over_limit(capsys):
+    output = ""
+    for i in range(11):
+        with patch("builtins.input", side_effect=["Test Job Title", "Test Job Description", "Test Employer", "Test Location", "50000", "0"]):
+            try_posting_job(db, ["test_user1", "Test", "User", "Test123*"])
+            out, err = capsys.readouterr()
+            output += out
+
+    # Check if the maximum job posts limit is enforced
+    assert db.get_number_of_jobs() == 10
+    assert "Error: Maximum job posts limit reached." in output
+    clear_mock_db()
+
+@patch("jobs.db.get_job_by_id")
+@patch("jobs.db.already_applied")
+@patch("jobs.db.add_applications")
+def test_apply_for_job(mock_add_applications, mock_already_applied, mock_get_job_by_id, capsys):
+    mock_get_job_by_id.return_value = {
+        'firstname': 'TestEmployer',
+        'lastname': 'EmployerLastname',
+        'id': 1
+    }
+    mock_already_applied.return_value = False
+    mock_add_applications.return_value = None
+    
+    student_info = {
+        'id': 1,
+        'firstname': 'TestStudent',
+        'lastname': 'StudentLastname'
+    }
+    job_id = 1
+    
+    with patch("builtins.input", side_effect=["01/01/2025", "01/01/2023", "I'm a good fit for the job."]):
+        from jobs import apply_jobs_interns
+        apply_jobs_interns(student_info, job_id)
+        
+    out, err = capsys.readouterr()
+    
+    assert "Application submitted successfully!" in out
+    mock_add_applications.assert_called_once()
+
+
+def test_display_applied_and_not_applied(capsys):
+    with patch('database.DatabaseObject.get_jobs', return_value=[{'id': 1, 'title': 'Test Job', 'firstname': 'Not joe'}, {'id': 2, 'title': 'Test Job', 'firstname': 'Not joe'}]), \
+        patch('database.DatabaseObject.get_applications_of_student', return_value=[1]), \
+        patch('builtins.input', return_value='0'):
+            view_jobs_interns(mock_user_info)
+            out, err = capsys.readouterr()
+            assert 'Job ID: 1' in out
+            assert 'Status: APPLIED!' in out
+            assert 'Job ID: 2' in out
+            assert 'Status: Available.' in out
+
+def test_display_specific_job_details(capsys):
+    with patch('database.DatabaseObject.get_jobs', return_value=[{'id': 1, 'title': 'Test Job', 'firstname': 'Not joe', 'description': 'Test description', 'employer': 'Employer Name', 'location': 'Florida', 'salary': '$100,000'}, {'id': 2, 'title': 'Test Job', 'firstname': 'Not joe', 'description': 'Test description', 'employer': 'Employer Name', 'location': 'Florida', 'salary': '$100,000'}]), \
+        patch('database.DatabaseObject.get_applications_of_student', return_value=[1]), \
+        patch('builtins.input') as mock_input:
+            mock_input.side_effect = ['1', '0']
+            view_jobs_interns(mock_user_info)
+            out, err = capsys.readouterr()
+            assert 'Job ID: 1' in out
+            assert 'Title: Test Job' in out
+            assert 'Description: Test description' in out
+            assert 'Employer: Employer Name' in out
+            assert 'Location: Florida' in out
+            assert 'Salary: $100,000' in out
