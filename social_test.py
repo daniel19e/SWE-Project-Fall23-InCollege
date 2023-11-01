@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import Mock, MagicMock, ANY
 from unittest.mock import patch
 import social
-from social import connect_with_student, show_my_network
+from social import connect_with_student, manage_network
 
 
 @pytest.fixture
@@ -132,7 +132,7 @@ def test_show_my_network_go_back(capsys):
             patch('social.db.get_pending_requests', return_value=[]), \
             patch('social.db.get_connections', return_value=[]):
         mock_input.side_effect = ['0']
-        social.show_my_network('testusername')
+        social.manage_network('testusername')
         out, _ = capsys.readouterr()
         assert out == "\nYour Network:\n\nMake your selection:\n1. Disconnect from someone\n0. Go back\n"
 
@@ -142,7 +142,7 @@ def test_show_my_network_show_pending_requests_and_connections(capsys):
             patch('social.db.get_pending_requests', return_value=[['pending1'], ['pending2'], ['pending3']]), \
             patch('social.db.get_connections', return_value=['connection1', 'connection2', 'connection3']):
         mock_input.side_effect = ['0']
-        social.show_my_network('testusername')
+        social.manage_network('testusername')
         out, _ = capsys.readouterr()
         for i in range(1, 4):
             assert f"{i}. pending{i}" in out
@@ -154,7 +154,7 @@ def test_show_my_network_disconnect_from_someone_successfully(capsys):
             patch('social.db.get_pending_requests', return_value=[['pending1'], ['pending2'], ['pending3']]), \
             patch('social.db.get_connections', return_value=['connection1', 'connection2', 'connection3']):
         mock_input.side_effect = ['1', '1', 'yes', '0']
-        social.show_my_network('testusername')
+        social.manage_network('testusername')
         out, _ = capsys.readouterr()
         assert "Select someone to disconnect from" in out
         assert "Disconnected from connection1" in out
@@ -165,7 +165,7 @@ def test_show_my_network_disconnect_from_someone_no_changes(capsys):
             patch('social.db.get_pending_requests', return_value=[['pending1'], ['pending2'], ['pending3']]), \
             patch('social.db.get_connections', return_value=['connection1', 'connection2', 'connection3']):
         mock_input.side_effect = ['1', '1', 'no', '0']
-        social.show_my_network('testusername')
+        social.manage_network('testusername')
         out, _ = capsys.readouterr()
         assert "No changes were made" in out
 
@@ -177,7 +177,7 @@ def test_show_my_network_accept_pending_request(capsys):
             patch('social.db.accept_friend_request', return_value=None):
         for i in range(1, 4):
             mock_input.side_effect = [f'a{i}']
-            social.show_my_network('testusername')
+            social.manage_network('testusername')
             out, _ = capsys.readouterr()
             # check we can accept all pending connections
             assert f"You are now connected with pending{i}" in out
@@ -194,7 +194,7 @@ def test_friend_list_display_update_friend_with_profile(capsys):
             patch('social.db.profile_exists', return_value=True), \
             patch('student_profile.display_profile') as mocked_display_profile:
         mocked_input.side_effect = ['p1', '0']  # press p1 and go back
-        show_my_network('current_user')
+        manage_network('current_user')
         mocked_display_profile.assert_called_with(ANY, 'john_doe')
 
 
@@ -204,7 +204,7 @@ def test_friend_list_show_profile_option(capsys):
             patch('social.db.profile_exists', return_value=True), \
             patch('student_profile.display_profile') as mocked_display_profile:
         mocked_input.side_effect = ['p1', '0']  # press p1 and go back
-        show_my_network('current_user')
+        manage_network('current_user')
         mocked_display_profile.assert_called_with(ANY, 'john_doe')
         out, _ = capsys.readouterr()
         assert "john_doe - View Profile (press p1)" in out
@@ -221,7 +221,7 @@ def test_friend_list_display_update_friend_with_no_profile(capsys):
             patch('social.db.profile_exists', return_value=False), \
             patch('student_profile.display_profile') as mocked_display_profile:
         mocked_input.side_effect = ['p1', '0']  # press p1 and go back
-        show_my_network('current_user')
+        manage_network('current_user')
         out, _ = capsys.readouterr()
         assert "john_doe" in out
         assert "jane_doe" in out
@@ -239,5 +239,5 @@ def test_profile_display_is_called(capsys):
             patch('social.db.profile_exists', return_value=True), \
             patch('student_profile.display_profile') as mocked_display_profile:
         mocked_input.side_effect = ['p1', '0']
-        show_my_network('current_user')
+        manage_network('current_user')
         mocked_display_profile.assert_called_with(ANY, 'john_doe')

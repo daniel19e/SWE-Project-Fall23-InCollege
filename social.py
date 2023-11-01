@@ -80,26 +80,30 @@ def find_someone_i_know(username):
             return
 
 
-def show_my_network(username):
+def show_pending_requests(pending_requests):
+    # Display pending requests
+    if pending_requests:
+        print("Pending Requests:")
+        for idx, requester in enumerate(pending_requests):
+            print(f"{idx + 1}. {requester[0]}")
+        print("\nYour choice to accept (a#) or reject (r#). Ex: 'a1' or 'r1'")
+        
+def show_network(connections):
+    # Display friends list with profile option if they have one
+    print("\nYour Network:")
+    for i, connection in enumerate(connections):
+        if db.profile_exists(connection): # Using profile_exists to check if friend has a profile
+            print(f"{i + 1}. {connection} - View Profile (press p{i+1})")
+        else:
+            print(f"{i + 1}. {connection}")
+  
+def manage_network(username):
     clear_terminal()
     connections = db.get_connections(username)
     while True:
         pending_requests = db.get_pending_requests(username)
-        
-        # Display pending requests
-        if pending_requests:
-            print("Pending Requests:")
-            for idx, requester in enumerate(pending_requests):
-                print(f"{idx + 1}. {requester[0]}")
-            print("\nYour choice to accept (a#) or reject (r#). Ex: 'a1' or 'r1'")
-
-        # Display friends list with profile option if they have one
-        print("\nYour Network:")
-        for i, connection in enumerate(connections):
-            if db.profile_exists(connection): # Using profile_exists to check if friend has a profile
-                print(f"{i + 1}. {connection} - View Profile (press p{i+1})")
-            else:
-                print(f"{i + 1}. {connection}")
+        show_pending_requests(pending_requests)
+        show_network(connections)
 
         print("\nMake your selection:")
         print("1. Disconnect from someone")
@@ -142,7 +146,7 @@ def show_my_network(username):
         elif choice.startswith('p'): # If user wants to view a friend's profile
             try:
                 index = int(choice[1:]) - 1
-            except:
+            except Exception:
                 index = -1
             if 0 <= index < len(connections) and db.profile_exists(connections[index]):
                 from student_profile import display_profile
@@ -151,7 +155,7 @@ def show_my_network(username):
             else:
                 clear_terminal()
                 print("Invalid profile choice or profile does not exist.")
-                continue    
+                continue
         else:
             clear_terminal()
             print("Invalid selection!")
@@ -174,12 +178,21 @@ def disconnect_from_someone(username):
             db.remove_connection(username, connections[selected - 1])
             clear_terminal()
             print(f"Disconnected from {connections[selected - 1]}")
-            return
         else:
             clear_terminal()
             print("No changes were made.")
-            return
-    except:
+        return
+    except Exception:
         clear_terminal()
         print("Invalid selection!")
         return
+    
+def send_message_to_friend(username, receiver):
+    clear_terminal()
+    
+
+def generate_message_list(username):
+    user_id = db.get_user_info(username)['id']
+    message_list = db.generate_message_list(user_id)
+    for message in message_list:
+        print("Message: ", message)

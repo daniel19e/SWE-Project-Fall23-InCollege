@@ -12,6 +12,7 @@ class DatabaseObject:
     self.cursor.execute('''CREATE TABLE IF NOT EXISTS job_applications (id INTEGER PRIMARY KEY AUTOINCREMENT, job_id INTEGER, student_id TEXT, graduation_date TEXT, start_date TEXT, student_application TEXT, FOREIGN KEY (job_id) REFERENCES job_posts(id) ON DELETE SET NULL)''')
     self.cursor.execute('''CREATE TABLE IF NOT EXISTS job_saved (job_id INTEGER, student_id TEXT, FOREIGN KEY (job_id) REFERENCES job_posts(id) ON DELETE SET NULL)''')
     self.cursor.execute('''CREATE TABLE IF NOT EXISTS student_profiles (username TEXT PRIMARY KEY, title TEXT, major TEXT, about TEXT, title1 TEXT, employer1 TEXT, start1 TEXT, end1 TEXT, location1 TEXT, description1 TEXT, title2 TEXT, employer2 TEXT, start2 TEXT, end2 TEXT, location2 TEXT, description2 TEXT, title3 TEXT, employer3 TEXT, start3 TEXT, end3 TEXT, location3 TEXT, description3 TEXT, university TEXT, degree TEXT, years_attended TEXT)''')
+    self.cursor.execute('''CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, sender INTEGER, receiver INTEGER, message TEXT, FOREIGN KEY (sender) REFERENCES college_students(id), FOREIGN KEY (receiver) REFERENCES college_students(id))''')
     self.connection.commit()
 
   def get_connection(self):
@@ -163,6 +164,10 @@ class DatabaseObject:
   
   def close_connection(self):
     self.connection.close()
+  
+  def generate_message_list(self, user_id):
+    self.cursor.execute("SELECT * FROM messages WHERE receiver = ?", user_id)
+    return list(cursor.fetchall())
 
 db = DatabaseObject("incollege_database.db")
 def get_existing_db_object():
