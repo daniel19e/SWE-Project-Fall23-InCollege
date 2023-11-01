@@ -167,18 +167,6 @@ def manage_network(username):
                 clear_terminal()
                 print("Invalid profile choice or profile does not exist.")
                 continue
-        elif choice.startswith('m'):
-            try:
-                index = int(choice[1:]) - 1
-            except:
-                index = -1
-            if 0 <= index < len(connections):
-                send_message_to_friend(username, connections[index])
-                print(f"Message sent to {connections[index]}!")
-            else:
-                clear_terminal()
-                print("Invalid connection choice.")
-                continue
         else:
             clear_terminal()
             print("Invalid selection!")
@@ -211,8 +199,12 @@ def disconnect_from_someone(username):
         clear_terminal()
         print("Invalid selection!")
         return
-
-
+            
+def inbox():
+    clear_terminal()
+    print("1. Send a Message.")
+    print("2. View Messages.")
+    
 def send_message_to_friend(username, receiver):
     message = input("Enter the message you want to send: ")
     receiver_id = db.get_user_info(receiver)['id']

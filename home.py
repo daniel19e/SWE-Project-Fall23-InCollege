@@ -37,16 +37,24 @@ def display_skills_page():
         clear_terminal()
         return False
 
-
-def display_home_page(username):
-    user_info = db.get_user_info(username)
+def display_notifications():
     pending_requests = db.get_pending_requests(get_current_username())
+    unread_messages = db.get_unread_messages()
 
     if pending_requests:
         print("----------------------------------")
         print("[Notification] - You have " + str(len(pending_requests)) +
               " pending friend request(s). Go to the 'Friend Requests' tab to accept/reject.\n")
         print("----------------------------------\n")
+    if unread_messages:
+        print("----------------------------------")
+        print("[Notification] - You have " + str(len(unread_messages)) +
+              " unread message(s). Go to the 'Messages' tab.\n")
+        print("----------------------------------\n")   
+
+def display_home_page(username):
+    user_info = db.get_user_info(username)
+    display_notifications()
 
     print(f"Welcome back, {get_current_username()}!")
     while True:
@@ -61,7 +69,7 @@ def display_home_page(username):
         print("H. Show My Network")
         print("I. Profile")
         print("J. Friend Requests")
-        print("K. Inbox")
+        print("K. Messages")
         print("\n0. Logout and go back\n")
 
         selection = input("Make a selection: ")

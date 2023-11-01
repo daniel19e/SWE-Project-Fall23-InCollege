@@ -17,7 +17,7 @@ class DatabaseObject:
         self.cursor.execute(
             '''CREATE TABLE IF NOT EXISTS job_saved (job_id INTEGER, student_id TEXT, FOREIGN KEY (job_id) REFERENCES job_posts(id) ON DELETE SET NULL)''')
         self.cursor.execute('''CREATE TABLE IF NOT EXISTS student_profiles (username TEXT PRIMARY KEY, title TEXT, major TEXT, about TEXT, title1 TEXT, employer1 TEXT, start1 TEXT, end1 TEXT, location1 TEXT, description1 TEXT, title2 TEXT, employer2 TEXT, start2 TEXT, end2 TEXT, location2 TEXT, description2 TEXT, title3 TEXT, employer3 TEXT, start3 TEXT, end3 TEXT, location3 TEXT, description3 TEXT, university TEXT, degree TEXT, years_attended TEXT)''')
-        self.cursor.execute('''CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, sender INTEGER, receiver INTEGER, message TEXT, time DATETIME DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (sender) REFERENCES college_students(id), FOREIGN KEY (receiver) REFERENCES college_students(id))''')
+        self.cursor.execute('''CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, sender INTEGER, receiver INTEGER, message TEXT, time DATETIME DEFAULT CURRENT_TIMESTAMP, read INTEGER, FOREIGN KEY (sender) REFERENCES college_students(id), FOREIGN KEY (receiver) REFERENCES college_students(id))''')
         self.connection.commit()
 
     def get_connection(self):
@@ -189,18 +189,24 @@ class DatabaseObject:
 
     def send_message(self, sender_id, receiver_id, message):
         self.cursor.execute(
-            "INSERT INTO messages (sender, receiver, message) VALUES (?, ?, ?)", (sender_id, receiver_id, message))
+            "INSERT INTO messages (sender, receiver, message, read) VALUES (?, ?, ?)", (sender_id, receiver_id, message, 0))
         self.connection.commit()
 
     def generate_message_list(self, receiver_id):
         self.cursor.execute(
             "SELECT * FROM messages WHERE receiver = ?", (receiver_id,))
+        self.cursor.execute("UPDATE messages SET read = ?", (1,))
+        self.connection.commit()
         return self.cursor.fetchall()
-      
+
+    def get_unread_messages(self):
+        self.cursor.execute("SELECT * FROM messages WHERE read = ?", (1,))
+        return self.cursor.fetchall()
+
     def get_user_by_id(self, user_id):
-      self.cursor.execute("SELECT username FROM college_students WHERE id = ?", (user_id,))
-      return self.cursor.fetchone()['username']
-      
+        self.cursor.execute(
+            "SELECT username FROM college_students WHERE id = ?", (user_id,))
+        return self.cursor.fetchone()['username']
 
 
 db = DatabaseObject("incollege_database.db")
