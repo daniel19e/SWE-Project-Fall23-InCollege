@@ -65,7 +65,6 @@ def display_home_page(username):
         print("\n0. Logout and go back\n")
 
         selection = input("Make a selection: ")
-        print("selection", selection.upper())
 
         # Search for a job
         if (selection.upper() == 'A'):
@@ -112,6 +111,7 @@ def display_home_page(username):
             show_friend_requests()
 
         elif selection.upper() == 'I':
+            clear_terminal()
             print("1.Create/Edit Profile")
             print("2.View Profile")
             print("Press any key to return back")

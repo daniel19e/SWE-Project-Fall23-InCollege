@@ -1,21 +1,27 @@
 
 from database import get_existing_db_object
 from util import clear_terminal
+import student_profile
+from util import convert_24_hour_to_12_hour, format_date
+
 
 db = get_existing_db_object()
+
+
 def promote_marketing_program():
     """prior to logging into the system, the user can enter first and last name to check if they're part of the program"""
     print("Welcome to InCollege, as part of our marketing program, we'd like to check if you're part of our system before you log in or sign up.")
     first = input("Enter your first name: ")
     last = input("Enter your last name: ")
     is_a_member = db.search_first_and_last(first.lower(), last.lower())
-    
+
     clear_terminal()
-    
+
     if is_a_member:
         print("You are a part of the InCollege system.")
     else:
         print("You are not a part of the InCollege system yet.")
+
 
 def connect_with_student(firstname, lastname):
     if db.search_first_and_last(firstname, lastname):
@@ -23,12 +29,15 @@ def connect_with_student(firstname, lastname):
         send_connection_request(firstname, lastname)
         return True
     else:
-        print(f"{firstname.capitalize()} {lastname.capitalize()} is not a member of InCollege.")
+        print(
+            f"{firstname.capitalize()} {lastname.capitalize()} is not a member of InCollege.")
         return False
+
 
 def send_connection_request(from_username, to_username):
     print(f"Connection request sent to {to_username} from {from_username}!")
     # this is not implemented yet
+
 
 def find_someone_i_know(username):
     clear_terminal()
@@ -37,7 +46,7 @@ def find_someone_i_know(username):
     print("2. University")
     print("3. Major")
     print("\n0. Go back\n")
-    
+
     choice = input("Make a selection: ")
 
     criteria = {}
@@ -63,7 +72,7 @@ def find_someone_i_know(username):
         for idx, student in enumerate(results):
             print(f"{idx + 1}. {student[2]} {student[3]} - {student[1]}")
         print("\nSelect a student to send a connection request or enter 0 to go back.")
-        
+
         connection_choice = input("Your choice: ")
         if connection_choice == '0':
             clear_terminal()
@@ -87,16 +96,20 @@ def show_pending_requests(pending_requests):
         for idx, requester in enumerate(pending_requests):
             print(f"{idx + 1}. {requester[0]}")
         print("\nYour choice to accept (a#) or reject (r#). Ex: 'a1' or 'r1'")
-        
+
+
 def show_network(connections):
     # Display friends list with profile option if they have one
     print("\nYour Network:")
     for i, connection in enumerate(connections):
-        if db.profile_exists(connection): # Using profile_exists to check if friend has a profile
-            print(f"{i + 1}. {connection} - View Profile (press p{i+1})")
+        # Using profile_exists to check if friend has a profile
+        if db.profile_exists(connection):
+            print(
+                f"{i + 1}. {connection} - View Profile (press p{i+1}) - Send Message (press m{i+1})")
         else:
-            print(f"{i + 1}. {connection}")
-  
+            print(f"{i + 1}. {connection} - Send Message (press m{i+1})")
+
+
 def manage_network(username):
     clear_terminal()
     connections = db.get_connections(username)
@@ -104,7 +117,6 @@ def manage_network(username):
         pending_requests = db.get_pending_requests(username)
         show_pending_requests(pending_requests)
         show_network(connections)
-
         print("\nMake your selection:")
         print("1. Disconnect from someone")
         print("0. Go back")
@@ -119,8 +131,8 @@ def manage_network(username):
         elif choice.startswith('a'):
             try:
                 index = int(choice[1:]) - 1
-            except:
-                index = -1 
+            except Exception:
+                index = -1
             if 0 <= index < len(pending_requests):
                 requester = pending_requests[index][0]
                 db.accept_friend_request(requester, username)
@@ -139,26 +151,38 @@ def manage_network(username):
                 db.reject_friend_request(requester, username)
                 clear_terminal()
                 print(f"Connection request from {requester} was rejected.")
-                return 
+                return
             clear_terminal()
             print("Invalid request choice.")
             continue
-        elif choice.startswith('p'): # If user wants to view a friend's profile
+        elif choice.startswith('p'):  # If user wants to view a friend's profile
             try:
                 index = int(choice[1:]) - 1
-            except Exception:
+            except:
                 index = -1
             if 0 <= index < len(connections) and db.profile_exists(connections[index]):
-                from student_profile import display_profile
-                display_profile(db, connections[index])
+                student_profile.display_profile(db, connections[index])
                 clear_terminal()
             else:
                 clear_terminal()
                 print("Invalid profile choice or profile does not exist.")
                 continue
+        elif choice.startswith('m'):
+            try:
+                index = int(choice[1:]) - 1
+            except:
+                index = -1
+            if 0 <= index < len(connections):
+                send_message_to_friend(username, connections[index])
+                print(f"Message sent to {connections[index]}!")
+            else:
+                clear_terminal()
+                print("Invalid connection choice.")
+                continue
         else:
             clear_terminal()
             print("Invalid selection!")
+
 
 def disconnect_from_someone(username):
     connections = db.get_connections(username)
@@ -173,7 +197,8 @@ def disconnect_from_someone(username):
         return
     try:
         selected = int(choice)
-        confirm = input(f"Do you really want to disconnect from {connections[selected - 1]}? (yes/no) ")
+        confirm = input(
+            f"Do you really want to disconnect from {connections[selected - 1]}? (yes/no) ")
         if confirm.lower() == 'yes':
             db.remove_connection(username, connections[selected - 1])
             clear_terminal()
@@ -186,13 +211,28 @@ def disconnect_from_someone(username):
         clear_terminal()
         print("Invalid selection!")
         return
-    
+
+
 def send_message_to_friend(username, receiver):
+    message = input("Enter the message you want to send: ")
+    receiver_id = db.get_user_info(receiver)['id']
+    sender_id = db.get_user_info(username)['id']
+    db.send_message(sender_id, receiver_id, message)
     clear_terminal()
-    
 
 def generate_message_list(username):
+    clear_terminal()
     user_id = db.get_user_info(username)['id']
     message_list = db.generate_message_list(user_id)
+    print("Inbox: ")
+    print()
     for message in message_list:
-        print("Message: ", message)
+        sender_name = db.get_user_by_id(message['sender'])
+        print(f"{sender_name.capitalize()}: {message['message']}")
+        date, time = message['time'].split()
+        formatted_date = format_date(date)
+        formatted_time = convert_24_hour_to_12_hour(time)
+        print(f"\t{formatted_date} {formatted_time}.")
+        print()
+    print()
+    input("Press any key to return back.")
