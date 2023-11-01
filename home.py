@@ -1,5 +1,5 @@
 from util import clear_terminal
-from social import connect_with_student, find_someone_i_know, manage_network, send_message_to_friend, generate_message_list
+from social import connect_with_student, find_someone_i_know, manage_network, inbox
 from database import get_existing_db_object
 from ascii_art import aa_error404
 from pages import *
@@ -132,7 +132,7 @@ def display_home_page(username):
                 print("Send a Message")
 
         elif selection.upper() == 'K':
-            generate_message_list(username)
+            inbox(username)
 
         # Exit
         elif (selection.upper() == '0'):

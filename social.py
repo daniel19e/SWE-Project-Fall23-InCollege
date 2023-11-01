@@ -199,18 +199,15 @@ def disconnect_from_someone(username):
         clear_terminal()
         print("Invalid selection!")
         return
-            
-def inbox():
-    clear_terminal()
-    print("1. Send a Message.")
-    print("2. View Messages.")
-    
-def send_message_to_friend(username, receiver):
+
+
+def send_message(username, receiver):
     message = input("Enter the message you want to send: ")
     receiver_id = db.get_user_info(receiver)['id']
     sender_id = db.get_user_info(username)['id']
     db.send_message(sender_id, receiver_id, message)
     clear_terminal()
+
 
 def generate_message_list(username):
     clear_terminal()
@@ -228,3 +225,18 @@ def generate_message_list(username):
         print()
     print()
     input("Press any key to return back.")
+
+
+def inbox(username):
+    clear_terminal()
+    print("1. Send a Message.")
+    print("2. View Messages.")
+    choice = input("\Make your selection: ")
+    if choice == '1':
+        receiver = input("Enter the username of the person you want to message: ")
+        connections = db.get_connections(username)
+        print("debug", connections)
+        # free tier users can only send messages to their friends
+        send_message(username, receiver)
+    elif choice == '2':
+        generate_message_list(username)
