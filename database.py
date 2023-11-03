@@ -201,6 +201,8 @@ class DatabaseObject:
         return messages
 
     def get_unread_messages(self, receiver_id):
+        if not receiver_id:
+            return []
         self.cursor.execute("SELECT * FROM messages WHERE read = ? AND receiver = ?", (0, receiver_id))
         return self.cursor.fetchall()
 

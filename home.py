@@ -39,7 +39,11 @@ def display_skills_page():
 
 def display_notifications():
     pending_requests = db.get_pending_requests(get_current_username())
-    user_id = db.get_user_info(get_current_username())['id']
+    user_info = db.get_user_info(get_current_username())
+    if user_info:
+        user_id = user_info['id']
+    else:
+        user_id = None
     unread_messages = db.get_unread_messages(user_id)
 
     if pending_requests:
