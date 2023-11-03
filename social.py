@@ -107,7 +107,7 @@ def show_network(connections):
             print(
                 f"{i + 1}. {connection} - View Profile (press p{i+1}) - Send Message (press m{i+1})")
         else:
-            print(f"{i + 1}. {connection} - Send Message (press m{i+1})")
+            print(f"{i + 1}. {connection}")
 
 
 def manage_network(username):
@@ -229,14 +229,21 @@ def generate_message_list(username):
 
 def inbox(username):
     clear_terminal()
+    print("Inbox: \n")
     print("1. Send a Message.")
     print("2. View Messages.")
-    choice = input("\Make your selection: ")
+    choice = input("\nMake your selection: ")
     if choice == '1':
         receiver = input("Enter the username of the person you want to message: ")
         connections = db.get_connections(username)
-        print("debug", connections)
+
+        if receiver == username:
+            print("Cannot send message to yourself.")
+            return
         # free tier users can only send messages to their friends
+        if receiver not in connections:
+            print("As a free tier, you must be friends with the person you're trying to message.")
+            return
         send_message(username, receiver)
     elif choice == '2':
         generate_message_list(username)

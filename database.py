@@ -189,18 +189,19 @@ class DatabaseObject:
 
     def send_message(self, sender_id, receiver_id, message):
         self.cursor.execute(
-            "INSERT INTO messages (sender, receiver, message, read) VALUES (?, ?, ?)", (sender_id, receiver_id, message, 0))
+            "INSERT INTO messages (sender, receiver, message, read) VALUES (?, ?, ?, ?)", (sender_id, receiver_id, message, 0))
         self.connection.commit()
 
     def generate_message_list(self, receiver_id):
         self.cursor.execute(
             "SELECT * FROM messages WHERE receiver = ?", (receiver_id,))
+        messages = self.cursor.fetchall()
         self.cursor.execute("UPDATE messages SET read = ?", (1,))
         self.connection.commit()
-        return self.cursor.fetchall()
+        return messages
 
-    def get_unread_messages(self):
-        self.cursor.execute("SELECT * FROM messages WHERE read = ?", (1,))
+    def get_unread_messages(self, receiver_id):
+        self.cursor.execute("SELECT * FROM messages WHERE read = ? AND receiver = ?", (0, receiver_id))
         return self.cursor.fetchall()
 
     def get_user_by_id(self, user_id):
