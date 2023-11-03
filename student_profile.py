@@ -1,23 +1,4 @@
-import re  # Regular expressions library used for validation.
-
-def format_string(s):
-    '''Returns the string with only the first letter of each word capitalized and the rest lowercase.'''
-    return ' '.join(word.capitalize() for word in s.split())
-
-
-def validate_date(input_date):
-    '''Check if the date matches the YYYY-MM-DD format.'''
-    if not input_date:
-        return True  # Empty string is considered valid here.
-    pattern = re.compile("^[0-9]{4}-[0-9]{2}-[0-9]{2}$")
-    return bool(pattern.match(input_date))
-
-def input_with_prefill(prompt, prefill=''):
-    '''Input function to handle default text.'''
-    if prefill:
-        user_input = input(f"{prompt} [{prefill}]: ").strip()
-        return user_input or prefill
-    return input(prompt).strip()
+from util import validate_date, input_with_prefill, format_string
 
 def check_exit(command):
     '''Check if the exit command was given.'''
