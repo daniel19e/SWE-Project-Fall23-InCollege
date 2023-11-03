@@ -5,14 +5,17 @@ import pytz
 
 def format_date(date_str):
     # Parse the input date string into a datetime object
-    input_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+    input_date = datetime.strptime(date_str, "%Y-%m-%d")
+    utc = pytz.utc.localize(input_date)
+    est = pytz.timezone("US/Eastern")
+    input_date = utc.astimezone(est)
     today = datetime.now().date()
-    if input_date == today:
+    if input_date.date() == today:
         return "Today at"
-    elif input_date == today - timedelta(days=1):
+    elif input_date.date() == today - timedelta(days=1):
         return "Yesterday at"
     else:
-        return input_date
+        return input_date.date()
        
 def compute_utc_to_est_offset():
     est = pytz.timezone('US/Eastern')

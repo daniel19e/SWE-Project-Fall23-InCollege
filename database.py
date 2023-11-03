@@ -194,7 +194,7 @@ class DatabaseObject:
 
     def generate_message_list(self, receiver_id):
         self.cursor.execute(
-            "SELECT * FROM messages WHERE receiver = ?", (receiver_id,))
+            "SELECT * FROM messages WHERE receiver = ? ORDER BY time DESC", (receiver_id,))
         messages = self.cursor.fetchall()
         self.cursor.execute("UPDATE messages SET read = ?", (1,))
         self.connection.commit()
