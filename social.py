@@ -201,7 +201,18 @@ def disconnect_from_someone(username):
         return
 
 
-def send_message(username, receiver):
+def send_message(username, receiver, is_free_tier):
+    connections = db.get_connections(username)
+    if not db.get_user_info(receiver):
+        print("The person you're trying to message is not in the InCollege system.")
+        return
+    if receiver == username:
+        print("You annot send a message to yourself.")
+        return
+    if is_free_tier and receiver not in connections:
+        print("As a free tier, you must be friends with the person you're trying to message.")
+        return
+    #otherwise, either plus tier, or receiver is in connections
     message = input("Enter the message you want to send: ")
     receiver_id = db.get_user_info(receiver)['id']
     sender_id = db.get_user_info(username)['id']
@@ -235,15 +246,6 @@ def inbox(username):
     choice = input("\nMake your selection: ")
     if choice == '1':
         receiver = input("Enter the username of the person you want to message: ")
-        connections = db.get_connections(username)
-
-        if receiver == username:
-            print("Cannot send message to yourself.")
-            return
-        # free tier users can only send messages to their friends
-        if receiver not in connections:
-            print("As a free tier, you must be friends with the person you're trying to message.")
-            return
-        send_message(username, receiver)
+        send_message(username, receiver, True) # free tier
     elif choice == '2':
         generate_message_list(username)
