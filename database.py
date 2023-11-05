@@ -6,7 +6,7 @@ class DatabaseObject:
         self.connection = sqlite3.connect(databaseName)
         self.connection.row_factory = sqlite3.Row
         self.cursor = self.connection.cursor()
-        self.cursor.execute("CREATE TABLE IF NOT EXISTS college_students (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, firstname TEXT, lastname TEXT, pass TEXT, major TEXT, university TEXT, language TEXT CHECK(language IN ('english', 'spanish')) default 'english', receive_emails BOOL default 1, receive_sms BOOL default 1, targeted_ads BOOL default 1)")
+        self.cursor.execute("CREATE TABLE IF NOT EXISTS college_students (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, firstname TEXT, lastname TEXT, pass TEXT, major TEXT, university TEXT, plus_tier BOOL, language TEXT CHECK(language IN ('english', 'spanish')) default 'english', receive_emails BOOL default 1, receive_sms BOOL default 1, targeted_ads BOOL default 1)")
         self.cursor.execute(
             "CREATE TABLE IF NOT EXISTS connections (user1 TEXT, user2 TEXT, PRIMARY KEY(user1, user2))")
         self.cursor.execute(
@@ -134,10 +134,10 @@ class DatabaseObject:
             "DELETE FROM job_applications WHERE job_id = ? AND student_id = ?", (job_id, student_id,))
         self.connection.commit()
 
-    def add_new_student(self, username, firstname, lastname, password, major, university):
+    def add_new_student(self, username, firstname, lastname, password, major, university, is_plus_tier=False):
         self.cursor.execute(
-            "INSERT INTO college_students (username, firstname, lastname, pass, major, university) VALUES (? , ?, ?, ?, ?, ?)",
-            (username.lower(), firstname.lower(), lastname.lower(), password, major.lower(), university.lower()))
+            "INSERT INTO college_students (username, firstname, lastname, pass, major, university, plus_tier) VALUES (? , ?, ?, ?, ?, ?, ?)",
+            (username.lower(), firstname.lower(), lastname.lower(), password, major.lower(), university.lower(), is_plus_tier))
         self.connection.commit()
 
     def get_jobs(self):
@@ -205,6 +205,11 @@ class DatabaseObject:
             return []
         self.cursor.execute("SELECT * FROM messages WHERE read = ? AND receiver = ?", (0, receiver_id))
         return self.cursor.fetchall()
+    
+    def delete_message_by_id(self, message_id):
+        self.cursor.execute(
+            "DELETE FROM messages WHERE id = ?", (message_id,))
+        self.connection.commit()
 
     def get_user_by_id(self, user_id):
         self.cursor.execute(

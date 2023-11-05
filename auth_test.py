@@ -54,13 +54,13 @@ def test_create_account(capsys):
 
   #Check if max of 10 accounts can be created
   for i in range(1, 16):
-    auth.create_account(db, "test" + str(i), "Test123*", f"testusername{i}", f"testlastname{i}", 'major', 'univ')
+    auth.create_account(db, "test" + str(i), "Test123*", f"testusername{i}", f"testlastname{i}", 'major', 'univ', 'n')
     out, err = capsys.readouterr()
     output.append('successfully' in out)
 
   #Check if create account needs unique username (these should all cause errors)
   for i in range(1, 6):
-    auth.create_account(db, "test" + str(i), "Test123*", f"testusername{i}", f"testlastname{i}", 'major', 'univ')
+    auth.create_account(db, "test" + str(i), "Test123*", f"testusername{i}", f"testlastname{i}", 'major', 'univ', 'n')
     out, err = capsys.readouterr()
     output.append('successfully' in out)
 
@@ -104,7 +104,7 @@ def test_create_account_requires_firstname_lastname(mock_db):
     
     for firstname, lastname in invalid_names:
         try:
-            create_account(mock_db, "nihat_karimli", valid_password, firstname, lastname, 'major', 'univ')
+            create_account(mock_db, "nihat_karimli", valid_password, firstname, lastname, 'major', 'univ', 'n')
         except ValueError as e:
             # Assuming the valueError is raised when first or last name is missing
             assert str(e) == "First name and Last name are required according to new InCollege rule"
@@ -116,6 +116,6 @@ def test_create_account_with_valid_data(mock_db):
     mock_db.get_number_of_accounts.return_value = 1
 
     #avoid IntegrityError possibility
-    create_account(mock_db, "nihat_karimli", "Karimli11!!", "Nihat", "Karimli", 'major', 'univ')
+    create_account(mock_db, "nihat_karimli", "Karimli11!!", "Nihat", "Karimli", 'major', 'univ', 'n')
 
-    mock_db.add_new_student.assert_called_once_with("nihat_karimli", "Nihat", "Karimli", "Karimli11!!", 'major', 'univ')
+    mock_db.add_new_student.assert_called_once_with("nihat_karimli", "Nihat", "Karimli", "Karimli11!!", 'major', 'univ', False)

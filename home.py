@@ -49,19 +49,20 @@ def display_notifications():
     if pending_requests:
         print("----------------------------------")
         print("[Notification] - You have " + str(len(pending_requests)) +
-              " pending friend request(s). Go to the 'Friend Requests' tab to accept/reject.\n")
+              " pending friend request(s). Go to the 'Friend Requests' tab to accept/reject.")
         print("----------------------------------\n")
     if unread_messages:
         print("----------------------------------")
         print("[Notification] - You have " + str(len(unread_messages)) +
-              " unread message(s). Go to the 'Messages' tab.\n")
+              " unread message(s). Go to the 'Messages' tab.")
         print("----------------------------------\n")   
 
 def display_home_page(username):
     user_info = db.get_user_info(username)
+    membership = "Plus" if user_info and user_info['plus_tier'] else "Standard"
     display_notifications()
 
-    print(f"Welcome back, {get_current_username()}!")
+    print(f"Welcome back, {get_current_username()}! | Membership: {membership}")
     while True:
         print("What would you like to do?\n")
         print("A. Job Search/Internship")
@@ -133,8 +134,9 @@ def display_home_page(username):
                 create_or_edit_profile(db, username)
             elif selection == '2':
                 display_profile(db, username)
-            else:
-                print("Send a Message")
+            clear_terminal()
+            # else:
+            #     print("Send a Message")
 
         elif selection.upper() == 'K':
             inbox(username)

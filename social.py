@@ -1,8 +1,9 @@
 
 from database import get_existing_db_object
-from util import clear_terminal
+from util import clear_terminal, inspect_input
 import student_profile
 from util import convert_24_hour_to_12_hour, format_date
+import re
 
 
 db = get_existing_db_object()
@@ -201,51 +202,129 @@ def disconnect_from_someone(username):
         return
 
 
-def send_message(username, receiver, is_free_tier):
+def send_message(username, receiver, is_plus_tier):
     connections = db.get_connections(username)
     if not db.get_user_info(receiver):
-        print("The person you're trying to message is not in the InCollege system.")
+        clear_terminal()
+        print("The person you're trying to message is not in the InCollege system.\n")
         return
     if receiver == username:
-        print("You annot send a message to yourself.")
+        clear_terminal()
+        print("You cannot send a message to yourself.\n")
         return
-    if is_free_tier and receiver not in connections:
-        print("As a free tier, you must be friends with the person you're trying to message.")
+    if not is_plus_tier and receiver not in connections:
+        clear_terminal()
+        print("As a free tier, you must be friends with the person you're trying to message.\n")
         return
     #otherwise, either plus tier, or receiver is in connections
-    message = input("Enter the message you want to send: ")
+    message = input("Enter the message you want to send (X to cancel): ")
+    if inspect_input(message):
+        clear_terminal()
+        return
     receiver_id = db.get_user_info(receiver)['id']
     sender_id = db.get_user_info(username)['id']
     db.send_message(sender_id, receiver_id, message)
     clear_terminal()
+    print("Message sent successfully!\n")
 
 
 def generate_message_list(username):
     clear_terminal()
-    user_id = db.get_user_info(username)['id']
-    message_list = db.generate_message_list(user_id)
-    print("Inbox: ")
-    print()
-    for message in message_list:
-        sender_name = db.get_user_by_id(message['sender'])
-        print(f"{sender_name.capitalize()}: {message['message']}")
-        date, time = message['time'].split()
-        formatted_date = format_date(date)
-        formatted_time = convert_24_hour_to_12_hour(time)
-        print(f"\t{formatted_date} {formatted_time}.")
-        print()
-    print()
-    input("Press any key to return back.")
+    while True:
+        user_id = db.get_user_info(username)['id']
+        message_list = db.generate_message_list(user_id)
+        print("Inbox: \n")
+        print("======================================")
+        if not message_list:
+            print("Your inbox is empty.")
+            print("======================================")
+        for i, message in enumerate(message_list):
+            sender_name = db.get_user_by_id(message['sender'])
+            print(f"Message #{i + 1}, sent by {sender_name.capitalize()}:")
+            print(f"{message['message']}")
+            print("--------------------------------------")
+            date, time = message['time'].split()
+            formatted_date = format_date(date)
+            formatted_time = convert_24_hour_to_12_hour(time)
+            print(f"\t{formatted_date} {formatted_time}.")
+            print("======================================")
+        
+        print("\nTo reply to a message, enter: reply [message #]")
+        print("To delete a message from your inbox, enter: delete [message #]")
+        print("To go back, enter: 0\n")
+        user_input = input("Enter your input: ")
+        
+        if user_input == '0':
+            clear_terminal()
+            break
+
+        if (re.match(r'^reply \d+$', user_input)):
+            message_num = user_input.split()[1]
+            message = message_list[int(message_num) - 1]
+            receiver = db.get_user_by_id(message['sender'])
+            send_message(username, receiver, True)
+            continue
+
+        if (re.match(r'^delete \d+$', user_input)):
+            message_num = user_input.split()[1]
+            message = message_list[int(message_num) - 1]
+            db.delete_message_by_id(str(message['id']))
+            clear_terminal()
+            print("Message deleted successfully!\n")
+            continue
+
+        clear_terminal()
+        print("Error: Invalid input.\n")
+
 
 
 def inbox(username):
     clear_terminal()
-    print("Inbox: \n")
-    print("1. Send a Message.")
-    print("2. View Messages.")
-    choice = input("\nMake your selection: ")
-    if choice == '1':
-        receiver = input("Enter the username of the person you want to message: ")
-        send_message(username, receiver, True) # free tier
-    elif choice == '2':
-        generate_message_list(username)
+    while True:
+        user_info = db.get_user_info(username)
+        user_id = user_info['id']
+        message_list = db.generate_message_list(user_id)
+
+        print("Inbox:\n")
+        if message_list:
+            print(f"You have {len(message_list)} message(s).")
+            print(f"------------------------")
+        print("1. View Messages")
+        print("2. Send a Message")
+        print("\n0. Go back")
+        choice = input("\nMake your selection: ")
+
+        if choice == '0':
+            clear_terminal()
+            break
+        
+        if choice == '1':
+            generate_message_list(username)
+        
+        elif choice == '2':
+            print("--------------------------------------")
+            print("Available Users: ")
+            generate_student_list(not user_info['plus_tier'], username)
+            print("--------------------------------------")
+            if not user_info['plus_tier']:
+                print("* Want to reach more people? Consider subscribing to InCollege+ *")
+            receiver = input("Enter the username of the person you want to message (X to cancel): ")
+            if inspect_input(receiver):
+                clear_terminal()
+                continue
+            send_message(username, receiver, user_info['plus_tier'])
+        
+        clear_terminal()
+        print("Error: Invalid input.\n")
+
+# Generate list of student accounts in system.
+def generate_student_list(friends_only=False, username=None):
+    if friends_only and username:
+        students = db.get_connections(username)
+        for i, student in enumerate(students):
+            print(f"{i + 1}. {student}")
+        return
+    
+    students = db.search_students_by_criteria()
+    for i, student in enumerate(students):
+        print(f"{i + 1}. {student['firstname']}")
