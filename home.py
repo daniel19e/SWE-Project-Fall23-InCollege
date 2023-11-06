@@ -69,13 +69,12 @@ def display_home_page(username):
         print("B. My Job Postings")
         print("C. Find Someone I Know")
         print("D. Learn a New Skill")
-        print("E. Connect With Other Students")
-        print("F. Useful Links")
-        print("G. Important Links")
-        print("H. Show My Network")
-        print("I. Profile")
-        print("J. Friend Requests")
-        print("K. Messages")
+        print("E. Useful Links")
+        print("F. Important Links")
+        print("G. Show My Network")
+        print("H. Profile")
+        print("I. Friend Requests")
+        print("J. Messages")
         print("\n0. Logout and go back\n")
 
         selection = input("Make a selection: ")
@@ -102,29 +101,19 @@ def display_home_page(username):
             if not display_skills_page():
                 continue
 
-        # connect with other students
         elif (selection.upper() == 'E'):
-            clear_terminal()
-            print("Who do you want to connect with?")
-            first = input("Enter their first name: ")
-            last = input("Enter their last name: ")
-            connect_with_student(first, last)
-            input("Enter any input to go back: ")
-            clear_terminal()
-
-        elif (selection.upper() == 'F'):
             show_useful_links()
 
-        elif (selection.upper() == 'G'):
+        elif (selection.upper() == 'F'):
             show_incollege_important_links()
 
-        elif selection.upper() == 'H':
+        elif selection.upper() == 'G':
             manage_network(username)
 
-        elif selection.upper() == 'J':
+        elif selection.upper() == 'I':
             show_friend_requests()
 
-        elif selection.upper() == 'I':
+        elif selection.upper() == 'H':
             clear_terminal()
             print("1.Create/Edit Profile")
             print("2.View Profile")
@@ -138,7 +127,7 @@ def display_home_page(username):
             # else:
             #     print("Send a Message")
 
-        elif selection.upper() == 'K':
+        elif selection.upper() == 'J':
             inbox(username)
 
         # Exit
