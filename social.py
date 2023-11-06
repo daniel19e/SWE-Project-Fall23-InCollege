@@ -313,6 +313,7 @@ def inbox(username):
                 clear_terminal()
                 continue
             send_message(username, receiver, user_info['plus_tier'])
+            continue
         
         clear_terminal()
         print("Error: Invalid input.\n")
