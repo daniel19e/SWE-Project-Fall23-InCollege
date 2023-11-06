@@ -308,7 +308,7 @@ def inbox(username):
             print("--------------------------------------")
             if not user_info['plus_tier']:
                 print("* Want to reach more people? Consider subscribing to InCollege+ *")
-            receiver = input("Enter the username of the person you want to message (X to cancel): ")
+            receiver = input("Enter the username(not the firstname you see above) of the person you want to message (X to cancel): ")
             if inspect_input(receiver):
                 clear_terminal()
                 continue
