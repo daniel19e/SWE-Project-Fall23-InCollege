@@ -11,15 +11,17 @@ def validate_password(password):
   return bool(re.match(regex, password))
 
 
-def create_account(db, username, password, firstname, lastname, major, university):
+def create_account(db, username, password, firstname, lastname, major, university, plus_tier):
   if not firstname or not lastname:
       raise ValueError("First name and Last name are required according to new InCollege rule")
+  
+  is_plus_tier = bool(re.match(r'^(y|yes)$', plus_tier, re.IGNORECASE))
 
   if validate_password(password):
     number_accounts = db.get_number_of_accounts()
     if (number_accounts < 10):
       try:
-        db.add_new_student(username, firstname, lastname, password, major, university)
+        db.add_new_student(username, firstname, lastname, password, major, university, is_plus_tier)
         print("You have successfully created an account!\n")
       except sqlite3.IntegrityError:
         print("Error: User already exists. Please try another username.\n")

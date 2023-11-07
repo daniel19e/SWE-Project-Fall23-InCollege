@@ -96,10 +96,16 @@ def sign_up_page():
     if inspect_input(university):
         clear_terminal()
         return False
+    
+    print("\n* InCollege now offers a Plus Membership! Plus members get access to a variety of exclusive features for only $10/month. *")
+    plus_tier = input("Would you like to opt in to InCollege+? (y/n): ")
+    if inspect_input(plus_tier):
+        clear_terminal()
+        return False
 
     clear_terminal()
 
-    create_account(db, username, password, firstname, lastname, major, university)
+    create_account(db, username, password, firstname, lastname, major, university, plus_tier)
     return True
 
 

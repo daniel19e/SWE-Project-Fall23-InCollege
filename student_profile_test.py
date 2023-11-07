@@ -268,3 +268,16 @@ def test_display_complete_profile(capsys):
             "Description: Description 3\n",
         ]
         assert out == "\n".join(expected_output)
+
+
+@patch('pages.input', side_effect=['John', 'Doe', 'johndoe', 'password123', 'Computer Science', 'University', 'n'])
+@patch('pages.print')
+def test_plus_membership_offer_message(mock_print, mock_input):
+    # You would replace 'your_module' with the actual name of the module where sign_up_page is defined.
+    from pages import sign_up_page
+    
+    # Call the sign_up_page function, which should now use the mocked input to simulate user input.
+    sign_up_page()
+
+    # Check if the specific message was printed.
+    mock_print.assert_any_call("\n* InCollege now offers a Plus Membership! Plus members get access to a variety of exclusive features for only $10/month. *")
