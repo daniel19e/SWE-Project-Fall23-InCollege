@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import Mock, MagicMock, ANY
 from unittest.mock import patch
-from social import generate_message_list
+from social import generate_message_list, inbox, send_message
 
 #check if the message functions works or not
 def test_generate_message_list():
@@ -40,3 +40,40 @@ def test_reply():
         with patch('social.input', side_effect=['reply 1', '0']), patch('social.send_message') as mock_send_message, patch('social.print') as mock_print:
             generate_message_list('testuser')
             mock_send_message.assert_called_with('testuser', 'kevin_eleven', True)
+
+# Test to check send_message when receiver is not in the system
+def test_send_message_receiver_not_in_system():
+    with patch('social.db') as mock_db, patch('social.clear_terminal'), patch('social.print') as mock_print:
+        mock_db.get_user_info.side_effect = [True, None]  # User exists, receiver doesn't
+        send_message('testuser', 'unknown_user', False)
+        mock_print.assert_any_call("As a free tier, you must be friends with the person you're trying to message.\n")
+
+# Test to check send_message when a user tries to message themselves
+def test_send_message_to_self():
+    with patch('social.db') as mock_db, patch('social.clear_terminal'), patch('social.print') as mock_print:
+        mock_db.get_user_info.return_value = True
+        send_message('testuser', 'testuser', True)
+        mock_print.assert_any_call("You cannot send a message to yourself.\n")
+
+# Test to check send_message when non-plus tier user tries to message a non-friend
+def test_send_message_non_plus_non_friend():
+    with patch('social.db') as mock_db, patch('social.clear_terminal'), patch('social.print') as mock_print:
+        mock_db.get_user_info.return_value = True
+        mock_db.get_connections.return_value = ['friend_user']
+        send_message('testuser', 'not_a_friend', False)
+        mock_print.assert_any_call("As a free tier, you must be friends with the person you're trying to message.\n")
+
+# Test to check generate_message_list with invalid reply format
+def test_generate_message_list_invalid_reply():
+    with patch('social.db') as mock_db, patch('social.input', side_effect=['reply', '0']), patch('social.clear_terminal'), patch('social.print') as mock_print:
+        mock_db.get_user_info.return_value = {'id': 'testuser'}
+        generate_message_list('testuser')
+        mock_print.assert_any_call("Error: Invalid input.\n")
+
+# Test to check generate_message_list with invalid delete format
+def test_generate_message_list_invalid_delete():
+    with patch('social.db') as mock_db, patch('social.input', side_effect=['delete', '0']), patch('social.clear_terminal'), patch('social.print') as mock_print:
+        mock_db.get_user_info.return_value = {'id': 'testuser'}
+        generate_message_list('testuser')
+        mock_print.assert_any_call("Error: Invalid input.\n")
+
