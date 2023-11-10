@@ -216,9 +216,8 @@ def test_directories_link(capsys):
     with patch("builtins.input", return_value="4"):
         pages.directories_link()
     captured = capsys.readouterr()
-    assert "Oops! Under construction 🛠️" in captured.ou
+    assert "Oops! Under construction 🛠️" in captured.out
 
-t
 ###################################################################################
 
 # (NEW TESTS) ====================================

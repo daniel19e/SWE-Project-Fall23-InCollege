@@ -1,14 +1,15 @@
 from util import clear_terminal
-from social import connect_with_student, find_someone_i_know, manage_network, inbox
+from social import find_someone_i_know, manage_network, inbox
 from database import get_existing_db_object
 from ascii_art import aa_error404
 from pages import *
 from auth import logout_account, get_current_username
 from student_profile import create_or_edit_profile, display_profile
 from jobs import job_listing, my_job_postings
-
+from notifications import Notifications
 
 db = get_existing_db_object()
+
 
 
 def display_skills_page():
@@ -38,39 +39,14 @@ def display_skills_page():
         return False
 
 
-def display_notifications():
-    pending_requests = db.get_pending_requests(get_current_username())
-    user_info = db.get_user_info(get_current_username())
-    if user_info:
-        user_id = user_info["id"]
-    else:
-        user_id = None
-    unread_messages = db.get_unread_messages(user_id)
-
-    if pending_requests:
-        print("----------------------------------")
-        print(
-            "[Notification] - You have "
-            + str(len(pending_requests))
-            + " pending friend request(s). Go to the 'Friend Requests' tab to accept/reject."
-        )
-        print("----------------------------------\n")
-    if unread_messages:
-        print("----------------------------------")
-        print(
-            "[Notification] - You have "
-            + str(len(unread_messages))
-            + " unread message(s). Go to the 'Messages' tab."
-        )
-        print("----------------------------------\n")
-
-
 def display_home_page(username):
     user_info = db.get_user_info(username)
     membership = "Plus" if user_info and user_info["plus_tier"] else "Standard"
-    display_notifications()
+    notifier = Notifications(username, user_info["id"], db)
+    notifier.show_notifications()
+    # display_notifications()
 
-    print(f"Welcome back, {get_current_username()}! | Membership: {membership}")
+    print(f"Welcome back, {username}! | Membership: {membership}")
     while True:
         print("What would you like to do?\n")
         print("A. Job Search/Internship")
@@ -83,6 +59,7 @@ def display_home_page(username):
         print("H. Profile")
         print("I. Friend Requests")
         print("J. Messages")
+        print("K. Notifications")
         print("\n0. Logout and go back\n")
 
         selection = input("Make a selection: ")
