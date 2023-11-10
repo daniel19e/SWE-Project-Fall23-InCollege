@@ -40,7 +40,7 @@ def driver():
         print(aa_logo)
         print("1. Log in with an existing account")
         print("2. Create a new account")
-        print("3. Watch a video: \"Why should I join InCollege?\"")
+        print('3. Watch a video: "Why should I join InCollege?"')
         print("4. Useful links")
         print("5. Important links")
         print("\n0. Exit\n")
@@ -48,14 +48,18 @@ def driver():
         start_choice = input("Select an option: ")
 
         # Login
-        if start_choice == '1':
+        if start_choice == "1":
             print("\n(Enter X to cancel)")
-            
+
             username = input("Enter username: ")
-            if inspect_input(username): clear_terminal(); continue
+            if inspect_input(username):
+                clear_terminal()
+                continue
 
             password = input("Enter password: ")
-            if inspect_input(password): clear_terminal(); continue
+            if inspect_input(password):
+                clear_terminal()
+                continue
 
             clear_terminal()
 
@@ -67,25 +71,25 @@ def driver():
                 logged_in = False
 
         # Register
-        elif start_choice == '2':
+        elif start_choice == "2":
             if sign_up_page() == False:
                 continue
-            
+
         # Video
-        elif start_choice == '3':
+        elif start_choice == "3":
             play_video()
             clear_terminal()
-        
-        elif start_choice == '4':
+
+        elif start_choice == "4":
             show_useful_links()
 
-        elif start_choice == '5':
+        elif start_choice == "5":
             show_incollege_important_links()
         # Exit
-        elif start_choice == '0':
+        elif start_choice == "0":
             print("\nShutting down program and database . . .")
             db.close_connection()
-            
+
             print("Exited Successfully!")
             break
 
@@ -95,5 +99,5 @@ def driver():
             print("Error: Invalid command, please select a valid option.")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     driver()
