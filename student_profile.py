@@ -1,8 +1,10 @@
 from util import validate_date, input_with_prefill, format_string
 
+
 def check_exit(command):
-    '''Check if the exit command was given.'''
-    return command.lower() == 'exit'
+    """Check if the exit command was given."""
+    return command.lower() == "exit"
+
 
 def create_or_edit_profile(db, username):
     cursor = db.get_cursor()
@@ -12,7 +14,9 @@ def create_or_edit_profile(db, username):
 
     # Start with a blank profile data dictionary or existing data if available.
     if existing_profile:
-        profile_data = dict(zip([desc[0] for desc in cursor.description], existing_profile))
+        profile_data = dict(
+            zip([desc[0] for desc in cursor.description], existing_profile)
+        )
     else:
         profile_data = {"username": username}
 
@@ -23,12 +27,12 @@ def create_or_edit_profile(db, username):
         ("about", "Enter about: "),
         ("university", "Enter your university: "),
         ("degree", "Enter your degree: "),
-        ("years_attended", "Enter your years attended (YYYY-YYYY): ")
+        ("years_attended", "Enter your years attended (YYYY-YYYY): "),
     ]
 
     # Gather user input for the base profile information.
     for field, prompt in prompts:
-        prefill = profile_data.get(field, '')
+        prefill = profile_data.get(field, "")
         user_input = input_with_prefill(prompt, prefill)
 
         # Check for the 'exit' command.
@@ -49,8 +53,12 @@ def create_or_edit_profile(db, username):
         experience = {}
         for field in ["title", "employer", "start", "end", "location", "description"]:
             field_key = f"{field}{i}"  # The key in the profile data.
-            prompt = f"{field.capitalize()} date (YYYY-MM-DD): " if "date" in field else f"{field.capitalize()}: "
-            prefill = profile_data.get(field_key, '')
+            prompt = (
+                f"{field.capitalize()} date (YYYY-MM-DD): "
+                if "date" in field
+                else f"{field.capitalize()}: "
+            )
+            prefill = profile_data.get(field_key, "")
             user_input = input_with_prefill(prompt, prefill)
 
             # Check for the 'exit' command.
@@ -78,10 +86,11 @@ def create_or_edit_profile(db, username):
     save_profile(db, profile_data, username)
     print("\nProfile updated successfully!")
 
+
 def save_profile(db, profile_data, username):
     cursor = db.get_cursor()
-    
-    if 'username' in profile_data:
+
+    if "username" in profile_data:
         # Check if we're updating an existing profile or creating a new one.
         cursor.execute("SELECT * FROM student_profiles WHERE username = ?", (username,))
         if cursor.fetchone():
@@ -93,13 +102,16 @@ def save_profile(db, profile_data, username):
         else:
             # Insert a new profile.
             columns = ", ".join(profile_data.keys())
-            placeholders = ", ".join(['?'] * len(profile_data))
-            sql_query = f"INSERT INTO student_profiles ({columns}) VALUES ({placeholders})"
+            placeholders = ", ".join(["?"] * len(profile_data))
+            sql_query = (
+                f"INSERT INTO student_profiles ({columns}) VALUES ({placeholders})"
+            )
             cursor.execute(sql_query, list(profile_data.values()))
 
         db.connection.commit()  # Committing the changes to the database.
     else:
         print("No profile changes to save.")
+
 
 def display_profile(db, username):
     cursor = db.get_cursor()
@@ -111,7 +123,15 @@ def display_profile(db, username):
 
         print("\nProfile Details:")
         # Printing general details first, excluding the fields related to experiences.
-        general_fields = ["username", "title", "major", "about", "university", "degree", "years_attended"]
+        general_fields = [
+            "username",
+            "title",
+            "major",
+            "about",
+            "university",
+            "degree",
+            "years_attended",
+        ]
         for key in general_fields:
             formatted_key = key.replace("_", " ").capitalize()
             print(f"{formatted_key}: {profile_dict.get(key, '')}")
@@ -121,7 +141,14 @@ def display_profile(db, username):
             title_key = f"title{i}"
             if profile_dict.get(title_key):
                 print(f"\nExperience {i}:")
-                exp_keys = ["title", "employer", "start", "end", "location", "description"]
+                exp_keys = [
+                    "title",
+                    "employer",
+                    "start",
+                    "end",
+                    "location",
+                    "description",
+                ]
                 for exp_key in exp_keys:
                     full_key = f"{exp_key}{i}"
                     # Format the key for printing, capitalizing it and removing underscores.
