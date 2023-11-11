@@ -7,7 +7,7 @@ class DatabaseObject:
         self.connection.row_factory = sqlite3.Row
         self.cursor = self.connection.cursor()
         self.cursor.execute(
-            "CREATE TABLE IF NOT EXISTS college_students (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, firstname TEXT, lastname TEXT, pass TEXT, major TEXT, university TEXT, plus_tier BOOL, language TEXT CHECK(language IN ('english', 'spanish')) default 'english', receive_emails BOOL default 1, receive_sms BOOL default 1, targeted_ads BOOL default 1)"
+            "CREATE TABLE IF NOT EXISTS college_students (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, firstname TEXT, lastname TEXT, pass TEXT, major TEXT, university TEXT, plus_tier BOOL, language TEXT CHECK(language IN ('english', 'spanish')) default 'english', receive_emails BOOL default 1, receive_sms BOOL default 1, targeted_ads BOOL default 1, joined_timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, last_notified_timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)"
         )
         self.cursor.execute(
             "CREATE TABLE IF NOT EXISTS connections (user1 TEXT, user2 TEXT, PRIMARY KEY(user1, user2))"
@@ -19,7 +19,7 @@ class DatabaseObject:
             """CREATE TABLE IF NOT EXISTS job_posts (id INTEGER PRIMARY KEY AUTOINCREMENT, firstname TEXT, lastname TEXT, title TEXT, description TEXT, employer TEXT, location TEXT, salary TEXT)"""
         )
         self.cursor.execute(
-            """CREATE TABLE IF NOT EXISTS job_applications (id INTEGER PRIMARY KEY AUTOINCREMENT, job_id INTEGER, student_id TEXT, graduation_date TEXT, start_date TEXT, student_application TEXT, FOREIGN KEY (job_id) REFERENCES job_posts(id) ON DELETE SET NULL)"""
+            """CREATE TABLE IF NOT EXISTS job_applications (id INTEGER PRIMARY KEY AUTOINCREMENT, job_id INTEGER, student_id TEXT, graduation_date TEXT, start_date TEXT, time_applied DATETIME DEFAULT CURRENT_TIMESTAMP, student_application TEXT, FOREIGN KEY (job_id) REFERENCES job_posts(id) ON DELETE SET NULL)"""
         )
         self.cursor.execute(
             """CREATE TABLE IF NOT EXISTS job_saved (job_id INTEGER, student_id TEXT, FOREIGN KEY (job_id) REFERENCES job_posts(id) ON DELETE SET NULL)"""
@@ -166,6 +166,13 @@ class DatabaseObject:
         )
         return [job[0] for job in self.cursor.fetchall()]
 
+    def get_time_of_job_applications(self, student_id):
+        self.cursor.execute(
+            "SELECT time_applied FROM job_applications WHERE student_id = ?",
+            (student_id,),
+        )
+        return self.cursor.fetchall()
+
     def remove_application(self, job_id, student_id):
         self.cursor.execute(
             "DELETE FROM job_applications WHERE job_id = ? AND student_id = ?",
@@ -298,6 +305,29 @@ class DatabaseObject:
             "SELECT username FROM college_students WHERE id = ?", (user_id,)
         )
         return self.cursor.fetchone()["username"]
+
+    def get_student_who_joined_for_notification(self, user_id):
+        self.cursor.execute(
+            "SELECT last_notified_timestamp FROM college_students WHERE id = ?",
+            (user_id,),
+        )
+        result = self.cursor.fetchone()
+        if result:
+            last_notified_time = result[0]
+        else:
+            last_notified_time = None
+        self.cursor.execute(
+            "SELECT firstname, lastname FROM college_students WHERE joined_timestamp > ?",
+            (last_notified_time,),
+        )
+
+        new_students = self.cursor.fetchall()
+        self.cursor.execute(
+            "UPDATE college_students SET last_notified_timestamp = CURRENT_TIMESTAMP WHERE id = ?",
+            (user_id,),
+        )
+        self.connection.commit()
+        return new_students
 
 
 db = DatabaseObject("incollege_database.db")
