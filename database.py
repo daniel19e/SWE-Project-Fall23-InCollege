@@ -168,9 +168,10 @@ class DatabaseObject:
 
     def get_time_of_job_applications(self, student_id):
         self.cursor.execute(
-            "SELECT * FROM job_applications WHERE student_id = ?", (student_id,)
+            "SELECT time_applied FROM job_applications WHERE student_id = ?",
+            (student_id,),
         )
-        return [job for job in self.cursor.fetchall()]
+        return self.cursor.fetchall()
 
     def remove_application(self, job_id, student_id):
         self.cursor.execute(

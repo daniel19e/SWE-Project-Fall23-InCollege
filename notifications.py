@@ -1,7 +1,5 @@
-import database
-from auth import get_current_username
-from datetime import datetime, timedelta
-
+from datetime import datetime
+from util import is_within_last_seven_days
 
 
 class Notifications:
@@ -11,7 +9,7 @@ class Notifications:
         self.user_id = user_id
 
     def __pending_requests_notif(self):
-        pending_requests = self.db.get_pending_requests(get_current_username())
+        pending_requests = self.db.get_pending_requests(self.username)
         if pending_requests:
             print("----------------------------------")
             print(
@@ -35,22 +33,22 @@ class Notifications:
     def __student_joined_notif(self):
         new_students = self.db.get_student_who_joined_for_notification(self.user_id)
         if new_students:
+            print("----------------------------------")
             print("[Notification] - New students in InCollege:")
             for student in new_students:
-                print(f"\tStudent {student[0].capitalize()} {student[1].capitalize()} has joined InCollege!")
-
-    def __is_within_last_seven_days(self, dt):
-        now = datetime.now()
-        seven_days_ago = now - timedelta(days=7)
-        return seven_days_ago <= dt <= now
+                print(
+                    f"\tStudent {student[0].capitalize()} {student[1].capitalize()} has joined InCollege!"
+                )
+            print("----------------------------------\n")
 
     def __not_applied_for_a_job_notif(self):
         times = self.db.get_time_of_job_applications(self.user_id)
         has_applied_in_past_seven_days = False
+        date_format = "%Y-%m-%d %H:%M:%S"
         for time in times:
-            print("debug time", time)
-        # if self.__is_within_last_seven_days(time):
-        #    has_applied_in_past_seven_days = True
+            datetime_obj = datetime.strptime(time["time_applied"], date_format)
+            if is_within_last_seven_days(datetime_obj):
+                has_applied_in_past_seven_days = True
         if not has_applied_in_past_seven_days:
             print("----------------------------------")
             print(

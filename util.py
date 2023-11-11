@@ -19,6 +19,15 @@ def format_date(date_str):
         return input_date.date()
 
 
+def is_within_last_seven_days(dt):
+    if dt.tzinfo is None or dt.tzinfo.utcoffset(dt) is None:
+        dt = pytz.utc.localize(dt)
+
+    now_utc = datetime.now(pytz.utc)
+    seven_days_ago_utc = now_utc - timedelta(days=7)
+    return seven_days_ago_utc <= dt <= now_utc
+
+
 def compute_utc_to_est_offset():
     est = pytz.timezone("US/Eastern")
     offset = est.utcoffset(datetime.utcnow())

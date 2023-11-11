@@ -42,7 +42,11 @@ def display_skills_page():
 def display_home_page(username):
     user_info = db.get_user_info(username)
     membership = "Plus" if user_info and user_info["plus_tier"] else "Standard"
-    notifier = Notifications(username, user_info["id"], db)
+    if user_info:
+        user_id = user_info["id"]
+    else:
+        user_id = None
+    notifier = Notifications(username, user_id, db)
     notifier.show_notifications()
     # display_notifications()
 
