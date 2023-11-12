@@ -1,7 +1,6 @@
 import time
 from util import clear_terminal
 
-
 def play_video():
     video = """
 ╔────────────────────────────────────────╗
@@ -34,5 +33,6 @@ def play_video():
             print("Video is now playing . . . . .")
 
         t -= 1
-
+            
         time.sleep(1)
+    

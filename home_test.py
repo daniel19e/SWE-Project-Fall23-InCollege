@@ -11,7 +11,7 @@ def mock_input(mocked_inputs):
 
 # Test case for finding someone they know
 def test_find_someone_they_know(capsys):
-    with patch("builtins.input", side_effect=["C", "0", "0"]):
+    with patch('builtins.input', side_effect=['C', '0', '0']):
         display_home_page("TestUser")
         out, _ = capsys.readouterr()
         assert "Find someone you know by:" in out
@@ -21,20 +21,20 @@ def test_find_someone_they_know(capsys):
 def test_learn_skills(capsys):
     effects = []
     for skill_option in range(1, 6):
-        effects.append("D")
+        effects.append('D')
         effects.append(str(skill_option))
-        effects.append("X")
-    effects.append("0")
-    with patch("builtins.input", side_effect=effects):
+        effects.append('X')
+    effects.append('0')
+    with patch('builtins.input', side_effect=effects):
         display_home_page("TestUser")
         out, _ = capsys.readouterr()
     # Assert that message appears 5 times (once for each skill)
-    assert out.count("Oops! Under construction") == 5
+    assert out.count('Oops! Under construction') == 5
 
 
 # Test case for returning to the previous level
 def test_return_to_previous_level(capsys):
-    with patch("builtins.input", side_effect=["0"]):
+    with patch('builtins.input', side_effect=['0']):
         display_home_page("TestUser")
         out, _ = capsys.readouterr()
         assert "Welcome back" in out
@@ -42,24 +42,18 @@ def test_return_to_previous_level(capsys):
 
 # Test case for invalid input
 def test_invalid_input(capsys):
-    with patch("builtins.input", side_effect=["X", "0"]):
+    with patch('builtins.input', side_effect=['X', '0']):
         display_home_page("TestUser")
         out, _ = capsys.readouterr()
         assert "Error: Invalid choice. Please enter a valid character.\n" in out
 
-
 # Pending Request Notification Test
 def test_pending_request_notification(capsys):
-    with patch("builtins.input", side_effect=["0"]), patch(
-        "home.db.get_pending_requests", return_value=[["pendingtest"]]
-    ):
+    with patch('builtins.input', side_effect=['0']), \
+            patch('home.db.get_pending_requests', return_value=[['pendingtest']]):
         display_home_page("TestUser")
         out, _ = capsys.readouterr()
-        assert (
-            "pending friend request(s). Go to the 'Friend Requests' tab to accept/reject."
-            in out
-        )
+        assert "pending friend request(s). Go to the 'Friend Requests' tab to accept/reject." in out
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     pytest.main()

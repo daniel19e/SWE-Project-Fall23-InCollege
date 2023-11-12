@@ -3,7 +3,6 @@ import re
 from datetime import datetime, timedelta
 import pytz
 
-
 def format_date(date_str):
     # Parse the input date string into a datetime object
     input_date = datetime.strptime(date_str, "%Y-%m-%d")
@@ -17,56 +16,41 @@ def format_date(date_str):
         return "Yesterday at"
     else:
         return input_date.date()
-
-
-def is_within_last_seven_days(dt):
-    if dt.tzinfo is None or dt.tzinfo.utcoffset(dt) is None:
-        dt = pytz.utc.localize(dt)
-
-    now_utc = datetime.now(pytz.utc)
-    seven_days_ago_utc = now_utc - timedelta(days=7)
-    return seven_days_ago_utc <= dt <= now_utc
-
-
+       
 def compute_utc_to_est_offset():
-    est = pytz.timezone("US/Eastern")
+    est = pytz.timezone('US/Eastern')
     offset = est.utcoffset(datetime.utcnow())
     seconds = (offset.days * 86400) + offset.seconds
-    return seconds // 3600  # hours
-
+    return seconds // 3600 # hours
 
 def convert_24_hour_to_12_hour(time_str):
-    time_str = time_str[:5]  # get rid of seconds
+    time_str = time_str[:5] # get rid of seconds
     time_obj = datetime.strptime(time_str, "%H:%M")
     est = time_obj + timedelta(hours=compute_utc_to_est_offset())
     time_12_hour_format = est.strftime("%I:%M %p")
     return time_12_hour_format
 
-
 def clear_terminal():
-    _ = system("cls") if name == "nt" else system("clear")
-
+  _ = system('cls') if name == 'nt' else system('clear')
 
 def inspect_input(input):
-    cancel = input.upper() == "X"
-    return cancel
-
+  cancel = (input.upper() == 'X')
+  return cancel
 
 def format_string(s):
-    """Returns the string with only the first letter of each word capitalized and the rest lowercase."""
-    return " ".join(word.capitalize() for word in s.split())
+    '''Returns the string with only the first letter of each word capitalized and the rest lowercase.'''
+    return ' '.join(word.capitalize() for word in s.split())
 
 
 def validate_date(input_date):
-    """Check if the date matches the YYYY-MM-DD format."""
+    '''Check if the date matches the YYYY-MM-DD format.'''
     if not input_date:
         return True  # Empty string is considered valid here.
     pattern = re.compile("^[0-9]{4}-[0-9]{2}-[0-9]{2}$")
     return bool(pattern.match(input_date))
 
-
-def input_with_prefill(prompt, prefill=""):
-    """Input function to handle default text."""
+def input_with_prefill(prompt, prefill=''):
+    '''Input function to handle default text.'''
     if prefill:
         user_input = input(f"{prompt} [{prefill}]: ").strip()
         return user_input or prefill
