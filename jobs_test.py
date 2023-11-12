@@ -32,7 +32,7 @@ def populate_mock_db(username, firstname, lastname, password):
 def test_add_one_job_to_db():
     clear_mock_db()
     db.add_new_job_post(
-        "Test", "test", "Title", "Description", "Employer", "Location", "50000"
+        "Test", "test", "Title", "Description", "Employer", "Location", "50000", 1
     )
     assert db.get_number_of_jobs() == 1
     clear_mock_db()
@@ -62,7 +62,7 @@ def test_try_deleting_another_users_job(capsys):
     populate_mock_db("testuser1", "Test", "User", "Test123*")
     populate_mock_db("testuser2", "Another", "User", "Test123*")
     db.add_new_job_post(
-        "Another", "User", "Title", "Description", "Employer", "Location", "50000"
+        "Another", "User", "Title", "Description", "Employer", "Location", "50000", 1
     )
     with patch("builtins.input", side_effect=["1"]):
         try_deleting_job(["testuser1", "Test", "User", "Test123*"])
@@ -330,7 +330,7 @@ def populate_mock_db(username, firstname, lastname, password):
 def test_add_one_job_to_db():
     clear_mock_db()
     db.add_new_job_post(
-        "Test", "test", "Title", "Description", "Employer", "Location", "50000"
+        "Test", "test", "Title", "Description", "Employer", "Location", "50000", 1
     )
     assert db.get_number_of_jobs() == 1
     clear_mock_db()

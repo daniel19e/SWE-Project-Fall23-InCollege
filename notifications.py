@@ -56,8 +56,29 @@ class Notifications:
             )
             print("----------------------------------\n")
 
+    def __not_created_profile_notif(self):
+        profile = self.db.profile_exists(self.username)
+        if profile == False:
+            print("----------------------------------")
+            print(
+                "[Notification] - Don't forget to create a profile"
+            )
+            print("----------------------------------\n")
+
+    def __notifications_from_db(self):
+        #fetch all notifications from notifications in the database and print
+        notifications = self.db.get_notifications(self.user_id)
+        if notifications:
+            for notification in notifications:
+                print("----------------------------------")
+                print(f"[Notification] - {notification['message']}")
+                print("----------------------------------\n")
+        self.db.mark_all_notifications_as_read(self.user_id)
+
     def show_notifications(self):
         self.__pending_requests_notif()
         self.__unread_messages_notif()
         self.__student_joined_notif()
         self.__not_applied_for_a_job_notif()
+        self.__notifications_from_db()
+        self.__not_created_profile_notif()

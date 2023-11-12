@@ -6,9 +6,9 @@ db = get_existing_db_object()
 
 
 def job_listing(user_info):
-    handle_job_deletion(user_info)
-
     while True:
+        handle_application_count(user_info)
+        handle_job_deletion(user_info)
         print("1. List All Jobs/Internships")
         print("2. Applied Jobs")
         print("3. Saved Jobs\n")
@@ -252,11 +252,12 @@ def try_posting_job(db, user_info):
             return
 
         if user_info:
+            student_id = user_info[0]
             firstname = user_info[2]
             lastname = user_info[3]
 
             db.add_new_job_post(
-                firstname, lastname, title, description, employer, location, salary
+                firstname, lastname, title, description, employer, location, salary, student_id
             )
 
             clear_terminal()
@@ -337,4 +338,15 @@ def handle_job_deletion(user_info):
         )
         for job_id in deleted_jobs:
             print(f"Job ID #{job_id}")
+        print("----------------------------------\n")
+
+
+def handle_application_count(user_info):
+    applied_jobs_ids = db.get_applications_of_student(user_info["id"])
+
+    if len(applied_jobs_ids) > 0:
+        print("----------------------------------")
+        print(
+            f"[Notification] - You have applied for {len(applied_jobs_ids)} job(s)."
+        )
         print("----------------------------------\n")

@@ -30,6 +30,9 @@ class DatabaseObject:
         self.cursor.execute(
             """CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, sender INTEGER, receiver INTEGER, message TEXT, time DATETIME DEFAULT CURRENT_TIMESTAMP, read INTEGER, FOREIGN KEY (sender) REFERENCES college_students(id), FOREIGN KEY (receiver) REFERENCES college_students(id))"""
         )
+        self.cursor.execute(
+            """CREATE TABLE IF NOT EXISTS notifications (id INTEGER PRIMARY KEY AUTOINCREMENT, student_id TEXT, message TEXT, read INTEGER default 0)"""
+        )
         self.connection.commit()
 
     def get_connection(self):
@@ -165,6 +168,31 @@ class DatabaseObject:
             "SELECT job_id FROM job_applications WHERE student_id = ?", (student_id,)
         )
         return [job[0] for job in self.cursor.fetchall()]
+    
+    def get_applications_of_job_with_info(self, job_id):
+        self.cursor.execute(
+            "SELECT * FROM job_applications WHERE job_id = ?", (job_id,)
+        )
+        return self.cursor.fetchall()
+    
+    # get all notifications of student id
+    def get_notifications(self, student_id):
+
+        #get all notifications where student id is student_id and read is 0
+        self.cursor.execute(
+            "SELECT * FROM notifications WHERE student_id = ? AND read = ?", (student_id, 0)
+        )
+
+        return self.cursor.fetchall()
+    
+    def mark_all_notifications_as_read(self, student_id):
+
+        #mark all notifications as read where student id is student_id
+        self.cursor.execute(
+            "UPDATE notifications SET read = ? WHERE student_id = ?", (1, student_id)
+        )
+        
+        self.connection.commit()
 
     def get_time_of_job_applications(self, student_id):
         self.cursor.execute(
@@ -216,7 +244,7 @@ class DatabaseObject:
         return self.cursor.fetchone()
 
     def add_new_job_post(
-        self, firstname, lastname, title, description, employer, location, salary
+        self, firstname, lastname, title, description, employer, location, salary, student_id
     ):
         self.cursor.execute(
             "INSERT INTO job_posts (firstname, lastname, title, description, employer, location, salary) VALUES (? , ?, ?, ?, ? , ?, ?)",
@@ -230,10 +258,35 @@ class DatabaseObject:
                 salary.lower(),
             ),
         )
+
+        # Add notification for every student in the system
+        for student in self.get_all_students():
+            if(student["id"] == student_id):
+                continue
+            self.add_notification(student["id"], f"New job '{title}' has been posted by {employer}.")
+
         self.connection.commit()
 
+    def get_all_students(self):
+        self.cursor.execute("SELECT * FROM college_students")
+        return self.cursor.fetchall()
+
     def remove_job_post(self, job_id):
+
+        job = self.get_job_by_id(job_id)
         self.cursor.execute("DELETE FROM job_posts WHERE id = ?", (job_id,))
+        
+        # Add notification for every person that applied for this job
+        for application in self.get_applications_of_job_with_info(job_id):
+            self.add_notification(application["student_id"], f"Job '{job['title']}' has been removed by the employer.")
+
+        self.connection.commit()
+
+    def add_notification(self, student_id, message):
+        self.cursor.execute(
+            "INSERT INTO notifications (student_id, message) VALUES (?, ?)",
+            (student_id, message),
+        )
         self.connection.commit()
 
     def add_saved_job(self, job_id, student_id):
