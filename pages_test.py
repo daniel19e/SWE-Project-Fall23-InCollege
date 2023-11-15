@@ -220,9 +220,6 @@ def test_directories_link(capsys):
 
 ###################################################################################
 
-# (NEW TESTS) ====================================
-
-
 # Show Pending Resquests Page with no Pending Requests
 def test_show_pending_requests_no_requests(capsys):
     with patch("builtins.input") as mock_input, patch(
