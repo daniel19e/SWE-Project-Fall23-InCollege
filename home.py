@@ -63,7 +63,6 @@ def display_home_page(username):
         print("H. Profile")
         print("I. Friend Requests")
         print("J. Messages")
-        print("K. Notifications")
         print("\n0. Logout and go back\n")
 
         selection = input("Make a selection: ")

@@ -8,6 +8,7 @@ from jobs import (
     try_deleting_job,
     handle_job_deletion,
     display_saved_jobs,
+    handle_application_count
 )
 import database
 from unittest.mock import Mock
@@ -193,10 +194,6 @@ def test_try_deleting_job(capsys):
         out, err = capsys.readouterr()
         assert "Job deleted sucessfully!" in out
 
-
-# NEW TESTS ----------------------------------------------------------------------------------------------------------------------------------------------------
-
-
 def test_post_jobs_over_limit(capsys):
     output = ""
     for i in range(11):
@@ -377,4 +374,26 @@ def test_post_jobs_over_limit(capsys):
     # Check if the maximum job posts limit is enforced
     assert db.get_number_of_jobs() == 10
     assert "Error: Maximum job posts limit reached." in output
+    clear_mock_db()
+
+# NEW TESTS ----------------------------------------------------------------------------------------------------------------------------------------------------
+
+def test_job_deleted_notification(capsys):
+    clear_mock_db()
+    populate_mock_db("testuser1", "Test", "User", "Test123*")
+    user_info = {"id": 1, "firstname": "Test", "lastname": "User"}
+    with patch('database.DatabaseObject.get_applications_of_student',return_value=[1]):
+        handle_job_deletion(user_info)
+        out, err = capsys.readouterr()
+        assert " One or more jobs you have applied for or saved, have been deleted." in out
+    clear_mock_db()
+
+def test_aplied_jobs_notification(capsys):
+    clear_mock_db()
+    populate_mock_db("testuser1", "Test", "User", "Test123*")
+    user_info = {"id": 1, "firstname": "Test", "lastname": "User"}
+    with patch('database.DatabaseObject.get_applications_of_student',return_value=[1, 2, 3, 4, 5]):
+        handle_application_count(user_info)
+        out, err = capsys.readouterr()
+        assert "You have applied for 5 job(s)." in out
     clear_mock_db()

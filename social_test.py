@@ -70,8 +70,6 @@ def test_connect_with_student_not_found(mock_search_first_and_last):
     result = connect_with_student("Jane", "Doe")
     assert result == False
 
-
-# (NEW TESTS) -------------------------
 @patch("social.db.search_students_by_criteria")
 def test_find_someone_i_know_lastname(mock_search_student_by_criteria, capsys):
     mock_search_student_by_criteria.return_value = [
@@ -280,8 +278,6 @@ def test_show_my_network_accept_pending_request(capsys):
             # check we can accept all pending connections
             assert f"You are now connected with pending{i}" in out
 
-
-# (NEW TESTS) -------------------------
 def test_friend_list_display_update_friend_with_profile(capsys):
     """
     Test to check if the friend list is displayed with an option to select a friend's profile

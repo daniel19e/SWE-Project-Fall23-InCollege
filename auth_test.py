@@ -46,7 +46,7 @@ def test_validate_password():
     assert auth.validate_password("Test123*")
 
 
-# Creating 15 different accounts to test if only 10 max can be created (NEW TEST CASE)
+# Creating 15 different accounts to test if only 10 max can be created
 def test_create_account(capsys):
     clear_mock_db()
     output = []
@@ -136,7 +136,7 @@ def mock_db():
     return Mock()
 
 
-# checking for legitimacy of firstname, lastname requirement (NEW TEST CASE)
+# checking for legitimacy of firstname, lastname requirement
 def test_create_account_requires_firstname_lastname(mock_db):
     mock_db.get_number_of_accounts.return_value = 1
     valid_password = "Karimli11!!"
@@ -164,7 +164,7 @@ def test_create_account_requires_firstname_lastname(mock_db):
             pytest.fail("Expected ValueError but none was raised")
 
 
-# double checking with a predefined valid data (NEW TEST CASE)
+# double checking with a predefined valid data
 def test_create_account_with_valid_data(mock_db):
     mock_db.get_number_of_accounts.return_value = 1
 
